@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 3</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            position: fixed;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js"></script>
+</head>
+<body>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        void main() {
+            gl_Position = vec4( position, 1.0 );
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        uniform vec2 u_resolution;
+        uniform float u_time;
+        uniform vec2 u_mouse;
+        uniform sampler2D u_noise;
+        uniform sampler2D u_tex_wormhole;
+        uniform sampler2D u_tex_wall;
+
+        const int octaves = 2;
+        const float seed = 43758.5453123;
+        const float seed2 = 73156.8473192;
+        const float eps = 0.005;
+        const float speed = 8.0;
+
+        vec3 movement = vec3(0.0);
+        vec2 uv;
+
+        const int maxIterations = 256;
+        const int maxIterationsShad = 16;
+        const float stepScale = 0.95;
+        const float stopThreshold = 0.0005;
+        const float clipNear = 0.0;
+        const float clipFar = 32.0;
+
+        #define PI 3.14159265359
+        #define TAU 6.28318530718
+
+        vec3 camPath(float t){
+            return vec3(sin(t/10.0)*5.0, cos(t/10.0)*5.0, t);    
+        }
+
+        mat4 rotationMatrix(vec3 axis, float angle)
+        {
+            axis = normalize(axis);
+            float s = sin(angle);
+            float c = cos(angle);
+            float oc = 1.0 - c;
+
+            return mat4(
+                oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0
+            );
+        }
+
+        float length2( vec2 p )
+        {
+            return sqrt( p.x*p.x + p.y*p.y );
+        }
+
+        float length6( vec2 p )
+        {
+            p = p*p*p; p = p*p;
+            return pow( p.x + p.y, 1.0/6.0 );
+        }
+
+        float length8( vec2 p )
+        {
+            p = p*p; p = p*p; p = p*p;
+            return pow( p.x + p.y, 1.0/8.0 );
+        }
+
+        float sdSphere( vec3 p, float s )
+        {
+            return length(p)-s;
+        }
+
+        float smin(float a, float b, float k) {
+            float res = exp(-k*a) + exp(-k*b);
+            return -log(res)/k;
+        }
+
+        vec3 random3( vec3 p ) {
+            return fract(sin(vec3(dot(p,vec3(127.1,311.7,319.8)),dot(p,vec3(269.5,183.3, 415.2)),dot(p,vec3(362.9,201.5,134.7))))*43758.5453);
+        }
+
+        vec2 random2( vec2 p ) {
+            return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
+        }
+
+        float world_sdf(in vec3 p, inout int objid) {
+            float world = 10.0;
+
+            vec3 _path = camPath(p.z + 1.0);
+            p.xy -= _path.xy;
+            vec2 polar = vec2(atan(p.y, p.x), length(p.xy));
+
+            world = 0.5 - polar.y;
+            objid = 1;
+
+            p = mod((vec4(p * vec3(1.5, 1.5, 0.1), 1.0) * rotationMatrix(vec3(0.0, 0.0, 1.0), u_time)).xyz, 1.0) - 0.5;
+
+            float sphere = sdSphere(p, 0.05);
+            if (sphere < world) {
+                world = sphere;
+                objid = 0;
+            }
+
+            return world;
+        }
+
+        float world_sdf(in vec3 p) {
+            int objid;
+            return world_sdf(p, objid);
+        }
+
+        vec3 calculate_normal(in vec3 p)
+        {
+            const vec3 small_step = vec3(0.0001, 0.0, 0.0);
+
+            float gradient_x = world_sdf(vec3(p.x + eps, p.y, p.z)) - world_sdf(vec3(p.x - eps, p.y, p.z));
+            float gradient_y = world_sdf(vec3(p.x, p.y + eps, p.z)) - world_sdf(vec3(p.x, p.y - eps, p.z));
+            float gradient_z = world_sdf(vec3(p.x, p.y, p.z  + eps)) - world_sdf(vec3(p.x, p.y, p.z - eps));
+
+            vec3 normal = vec3(gradient_x, gradient_y, gradient_z);
+
+            return normalize(normal);
+        }
+
+        float rayMarching( vec3 origin, vec3 dir, float start, float end, inout float field, inout int objid ) {
+            float sceneDist = 1e4;
+            float rayDepth = start;
+            for ( int i = 0; i < maxIterations; i++ ) {
+                sceneDist = world_sdf( origin + dir * rayDepth, objid );
+
+                if (( sceneDist < stopThreshold ) || (rayDepth >= end)) {        
+                    break;
+                }
+                rayDepth += sceneDist * stepScale;
+            }
+
+            if ( sceneDist >= stopThreshold ) rayDepth = end;
+            else rayDepth += sceneDist;
+
+            return rayDepth;
+        }
+
+        float hash( float n ) {
+            return fract(sin(n)*43758.5453);
+        }
+
+        vec3 lighting( vec3 sp, vec3 camPos, int reflectionPass, float dist, float field, vec3 rd, int objid) {
+            vec3 sceneColor = vec3(0.0);
+            vec3 objColor = vec3(-1.0);
+
+            vec3 surfNormal = calculate_normal(sp);
+
+            if (objid == 1) {
+                float ang = atan(surfNormal.y, surfNormal.x);
+                vec4 noise = texture2D(u_noise, vec2(ang * 0.1, sp.z * 0.5) * 1.0, -100.0);
+                float spike_mod = sin(ang * 200.0 + sin(u_time) * 100.0) + noise.x;
+                float spikes_1 = clamp(spike_mod, 0.0, 1.0);
+                objColor = texture2D(u_tex_wormhole, vec2(ang, sp.z * 0.1)).xyz;
+                objColor *= sin(sp.z * 1.8);
+
+                float spikes = clamp(spikes_1 - objColor.b * 2.0 + 0.5, 0.0, 1.0);
+                objColor -= vec3(spikes) * 0.2;
+                vec3 tex1 = texture2D(u_tex_wall, vec2(ang, sp.z * 1.0) * 0.5).grb;
+                objColor += clamp(tex1 * tex1 * tex1 * tex1, -1.0, 1.0) * sin(sp.z * 2.8);
+                objColor = clamp(objColor, 0.0, 1.0);
+                objColor.g = smoothstep(0.0, 0.7, objColor.g);
+            }
+
+            vec3 lp = vec3(0.0, 0.0, 1.0) + movement;
+            vec3 ld = lp - sp;
+            vec3 lcolor = vec3(1.0, 0.97, 0.92) * 0.8;
+
+            float len = length(ld);
+            ld /= len;
+            float lightAtten = min(1.0 / (0.15 * len * len), 1.0);
+
+            float sceneLen = length(camPos - sp);
+            float sceneAtten = min(1.0 / (0.015 * sceneLen * sceneLen), 1.0);
+
+            vec3 ref = reflect(-ld, surfNormal);
+            float ao = 1.0;
+            float ambient = 1.5;
+            float specularPower = 200000.0;
+            float diffuse = max(0.0, dot(surfNormal, ld));
+            float specular = max(0.0, dot(ref, normalize(camPos - sp)));
+            specular = pow(specular, specularPower);
+
+            sceneColor += (objColor * (diffuse * 0.8 + ambient) + specular * 0.5) * lcolor * 1.3 * lightAtten;
+
+            return sceneColor;
+        }
+
+        void main() {
+            vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
+            uv = (2.0 * gl_FragCoord.xy / u_resolution.xy - 1.0) * aspect;
+
+            movement = camPath(u_time * speed);
+            vec3 lookAt = vec3(0.0, 0.0, 0.0);
+            vec3 camera_position = vec3(0.0, 0.0, -1.0);
+
+            lookAt += camPath(u_time * speed + 3.0);
+            camera_position += movement;
+
+            vec3 forward = normalize(lookAt - camera_position);
+            vec3 right = normalize(vec3(forward.z, 0.0, -forward.x));
+            vec3 up = normalize(cross(forward, right));
+
+            float FOV = 2.0;
+            vec3 ro = camera_position;
+            vec3 rd = normalize(forward + FOV * uv.x * right + FOV * uv.y * up);
+
+            int objid = 0;
+            float field = 0.0;
+            float dist = rayMarching(ro, rd, clipNear, clipFar, field, objid);
+            if (dist >= clipFar) {
+                gl_FragColor = vec4(vec3(0.0), 1.0);
+                return;
+            }
+
+            vec3 sp = ro + rd * dist;
+            vec3 sceneColor = lighting(sp, camera_position, 0, dist, field, rd, objid);
+
+            vec3 uv3 = normalize(vec3(uv, 0.05)) * 30.0 + vec3(0.0, 0.0, u_time * 10.0);
+            vec3 i = floor(uv3);
+            vec3 f = fract(uv3);
+            vec3 star_loc = fract(cross(i, random3(i)));
+            float star = max(0.0, 20.0 * (0.1 - distance(f, star_loc))) * length(uv);
+
+            gl_FragColor = vec4(clamp(sceneColor, 0.0, 1.0) + star, 1.0);
+        }
+    </script>
+
+    <div id="container" touch-action="none"></div>
+
+    <script>
+        let container;
+        let camera, scene, renderer;
+        let uniforms;
+
+        let textures = {
+            'noise': {
+                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/noise.png',
+                val: undefined
+            },
+            'wormhole': {
+                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/workhole.png',
+                val: undefined
+            },
+            'wall': {
+                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/voronoi-tile.png',
+                val: undefined
+            }
+        };
+
+        let loader = new THREE.TextureLoader();
+        loader.setCrossOrigin("anonymous");
+        for (let key in textures) {
+            let entry = textures[key];
+            loader.load(entry.url, (texture) => {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearFilter;
+                entry.val = texture;
+                let resolve = true;
+                for (let key in textures) {
+                    if (textures[key].val === undefined) {
+                        resolve = false;
+                    }
+                }
+                if (resolve) {
+                    init();
+                    animate();
+                }
+            });
+        }
+
+        function init() {
+            container = document.getElementById('container');
+
+            camera = new THREE.Camera();
+            camera.position.z = 1;
+
+            scene = new THREE.Scene();
+
+            var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+            uniforms = {
+                u_time: { type: "f", value: 1.0 },
+                u_resolution: { type: "v2", value: new THREE.Vector2() },
+                u_noise: { type: "t", value: textures.noise.val },
+                u_tex_wormhole: { type: "t", value: textures.wormhole.val },
+                u_tex_wall: { type: "t", value: textures.wall.val },
+                u_mouse: { type: "v2", value: new THREE.Vector2() }
+            };
+
+            var material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: document.getElementById('vertexShader').textContent,
+                fragmentShader: document.getElementById('fragmentShader').textContent
+            });
+            material.extensions.derivatives = true;
+
+            var mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            container.appendChild(renderer.domElement);
+
+            onWindowResize();
+            window.addEventListener('resize', onWindowResize, false);
+
+            document.addEventListener('pointermove', (e) => {
+                let ratio = window.innerHeight / window.innerWidth;
+                uniforms.u_mouse.value.x = (e.pageX - window.innerWidth / 2) / window.innerWidth / ratio;
+                uniforms.u_mouse.value.y = (e.pageY - window.innerHeight / 2) / window.innerHeight * -1;
+
+                e.preventDefault();
+            });
+
+            document.addEventListener('dblclick', () => {
+                window.location.href = 'page4.html';
+            });
+        }
+
+        function onWindowResize(event) {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.u_resolution.value.x = renderer.domElement.width;
+            uniforms.u_resolution.value.y = renderer.domElement.height;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            uniforms.u_time.value += 0.01;
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
