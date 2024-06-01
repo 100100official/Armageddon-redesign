@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 5</title>
+    <style>
+        @keyframes particleAnim {
+          0%, 100% {
+            opacity: 0;
+            transform: translateZ(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translateZ(100px);
+          }
+        }
+
+        @keyframes rotZ {
+          0% {
+            transform: rotateX(45deg) rotateY(0) rotateZ(0);
+            animation-timing-function: linear;
+          }
+          100% {
+            transform: rotateX(45deg) rotateY(0) rotateZ(360deg);
+          }
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          background: black;
+        }
+
+        .center {
+          display: block;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          perspective: 800px;
+          perspective-origin: 50% 50%;
+          transform: translateX(-50%) translateY(-50%);
+          transform-style: preserve-3d;
+        }
+
+        .grid {
+          position: relative;
+          width: 160px; /* numberOfParticles * (particleSize + particleDistance) */
+          height: 160px; /* numberOfParticles * (particleSize + particleDistance) */
+          transform-style: preserve-3d;
+          transform-origin: center;
+          animation: rotZ 13s infinite linear;
+        }
+
+        .particle {
+          height: 8px; /* particle size */
+          width: 8px; /* particle size */
+          display: block;
+          position: absolute;
+          opacity: 0;
+          background: white;
+          transform-style: preserve-3d;
+        }
+
+        .row {
+          display: block;
+          position: absolute;
+        }
+
+        .volume-controls {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          justify-content: space-around;
+          width: 80%;
+        }
+
+        .volume-controls input[type="range"] {
+          writing-mode: vertical-lr; /* Vertical */
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <div class="grid"></div>
+    </div>
+
+    <div class="volume-controls">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume1" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume2" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume3" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume4" style="writing-mode: vertical-lr;">
+    </div>
+
+    <script>
+        document.addEventListener('dblclick', () => {
+            window.location.href = 'page6.html';
+        });
+
+        const grid = document.querySelector('.grid');
+        const numberOfParticles = 20;
+        const particleSize = 8;
+        const particleDistance = 0;
+
+        for (let j = 1; j <= numberOfParticles; j++) {
+            const row = document.createElement('div');
+            row.classList.add('row');
+            row.style.top = `${(j - 1) * (particleDistance + particleSize)}px`;
+
+            for (let i = 1; i <= numberOfParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${(i - 1) * (particleDistance + particleSize)}px`;
+                particle.style.animation = `particleAnim 3s infinite`;
+                particle.style.animationDelay = `${(i + j) / 10}s`;
+                row.appendChild(particle);
+            }
+
+            grid.appendChild(row);
+        }
+
+        // Create and add audio elements
+        const audioSources = [            
+            'supernova/Supernova_bass.mp3', // Replace with your audio file paths
+            'supernova/Supernova_drum.mp3',
+            'supernova/Supernova_vocal.mp3',
+            'supernova/Supernova_other_inst.mp3'
+        ];
+
+        const audioElements = audioSources.map((src, index) => {
+            const audio = new Audio(src);
+            audio.loop = true;
+            return audio;
+        });
+
+        // Play audio after user interaction
+        document.body.addEventListener('click', () => {
+            audioElements.forEach(audio => audio.play());
+        });
+
+        // Add event listeners for volume controls
+        document.getElementById('volume1').addEventListener('input', (event) => {
+            audioElements[0].volume = event.target.value;
+        });
+        document.getElementById('volume2').addEventListener('input', (event) => {
+            audioElements[1].volume = event.target.value;
+        });
+        document.getElementById('volume3').addEventListener('input', (event) => {
+            audioElements[2].volume = event.target.value;
+        });
+        document.getElementById('volume4').addEventListener('input', (event) => {
+            audioElements[3].volume = event.target.value;
+        });
+    </script>
+</body>
+</html>
+
+
+
+<!-- 'supernova/Supernova_bass.mp3', // Replace with your audio file paths
+'supernova/Supernova_drum.mp3',
+'supernova/Supernova_vocal.mp3',
+'supernova/Supernova_other_inst.mp3' -->
