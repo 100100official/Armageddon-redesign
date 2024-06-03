@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earth WebGL Demo</title>
+    <title>Two Earths WebGL Demo</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Fonts 링크 -->
     <style>
         html, body {
             padding: 0;
-            font-family: 'Press Start 2P', cursive; /* 폰트 적용 */
             margin: 0;
             height: 100%;
             overflow: hidden;
             background: black;
+            font-family: 'Press Start 2P', cursive; /* 폰트 적용 */
         }
 
         h1 {
@@ -25,7 +25,6 @@
             top: 0;
             left: 0;
         }
-
         #frame {
             position: absolute;
             top: 50%;
@@ -35,21 +34,8 @@
             border: 3px solid limegreen;
             transform: translate(-50%, -50%);
             box-sizing: border-box;
-            pointer-events: none; /* Ensure clicks pass through to canvas */
+            pointer-events: none;
         }
-
-        #observation-details {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: limegreen;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            font-size: 16px;
-            z-index: 10;
-        }
-
         #controls {
             position: absolute;
             bottom: 50px;
@@ -58,7 +44,6 @@
             display: flex;
             gap: 10px;
         }
-
         .control-button {
             background-color: limegreen;
             border: none;
@@ -71,7 +56,16 @@
         .control-button:active {
             background-color: darkgreen;
         }
-
+        #observation-details {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: limegreen;
+            text-align: center;
+            font-size: 16px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -90,9 +84,17 @@
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        import {
+          EffectComposer,
+          Pass,
+          FullScreenQuad
+        } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
+        import { LensDistortionPassGen } from 'https://cdn.jsdelivr.net/gh/ycw/three-lens-distortion@1.0.0/src/index.js';
+        import { DualBloomPassGen } from 'https://cdn.jsdelivr.net/gh/ycw/three-dual-bloom@1.1.6/src/index.js';
         import * as topojson from 'https://cdn.skypack.dev/topojson@3';
 
-        document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener('DOMContentLoaded', () => {
             class App {
                 constructor({ canvas }) {
                     this.canvas = canvas;
@@ -146,6 +148,9 @@
                     this.blueEarth.userData = { clickable: false }; // 초기 상태에서 클릭 불가능
                     this.canvas.addEventListener('click', this.onCanvasClick.bind(this));
 
+                    // 포스트 프로세싱 효과 설정
+                    this.initPostProcessing();
+
                     this.render();
                 }
 
@@ -189,6 +194,7 @@
                     this.camera.aspect = this.sizes.viewport.width / this.sizes.viewport.height;
                     this.camera.updateProjectionMatrix();
                     this.renderer.setSize(this.sizes.viewport.width, this.sizes.viewport.height);
+                    this.composer.setSize(this.sizes.viewport.width, this.sizes.viewport.height);
                 }
 
                 addZoomControls() {
@@ -268,8 +274,63 @@
                             this.camera.position.set(this.blueEarth.position.x, this.blueEarth.position.y, this.blueEarth.position.z + 5);
                             this.controls.target.copy(this.blueEarth.position);
                             this.controls.update();
+
+                            // 이미지 왜곡 효과 적용
+                            this.applyDistortionEffect();
+
+                            // UI 요소 비활성화
+                            document.getElementById('frame').style.display = 'none';
+                            document.getElementById('controls').style.display = 'none';
+                            document.getElementById('observation-details').style.display = 'none';
+                            document.getElementById('header').style.display = 'none';
+
+                            // 메시지 출력
+                            this.typeMessage("can't stop hyperstella");
                         }
                     }
+                }
+
+                initPostProcessing() {
+                    const deps = { THREE, Pass, FullScreenQuad };
+                    const LensDistortionPass = LensDistortionPassGen(deps);
+                    this.lensDistortionPass = new LensDistortionPass({
+                        distortion: new THREE.Vector2(-1, -1),
+                        focalLength: new THREE.Vector2(2, 2),
+                        skew: 0,
+                        principalPoint: new THREE.Vector2(0, 0)
+                    });
+                    this.lensDistortionPass.enabled = false; // 처음에는 비활성화
+                    const DualBloomPass = DualBloomPassGen(deps);
+                    this.dualBloomPass = new DualBloomPass({
+                        threshold: 0.1,
+                        blurriness: 4.0,
+                        intensity: 5
+                    });
+                    this.dualBloomPass.enabled = false; // 처음에는 비활성화
+
+                    this.composer = new EffectComposer(this.renderer);
+                    this.composer.addPass(new RenderPass(this.scene, this.camera));
+                    this.composer.addPass(this.lensDistortionPass);
+                    this.composer.addPass(this.dualBloomPass);
+                }
+
+                applyDistortionEffect() {
+                    this.lensDistortionPass.enabled = true;
+                    this.dualBloomPass.enabled = true;
+                }
+
+                typeMessage(message) {
+                    const messageElement = document.getElementById('message');
+                    messageElement.style.display = 'block';
+                    messageElement.textContent = '';
+                    let index = 0;
+                    const interval = setInterval(() => {
+                        messageElement.textContent += message[index];
+                        index++;
+                        if (index === message.length) {
+                            clearInterval(interval);
+                        }
+                    }, 100);
                 }
 
                 render() {
@@ -281,7 +342,7 @@
                         this.blueEarth.rotation.y += 0.01;
                     }
                     this.controls.update();
-                    this.renderer.render(this.scene, this.camera);
+                    this.composer.render();
                 }
             }
 
