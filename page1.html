@@ -66,6 +66,17 @@
             font-size: 16px;
             z-index: 10;
         }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: limegreen;
+            text-align: center;
+            font-size: 16px;
+            z-index: 20;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -81,6 +92,7 @@
         <button id="capture" class="control-button">Capture</button>
     </div>
     <div id="observation-details">Observation Date: N/A - Location: N/A</div>
+    <div id="message"></div>
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
@@ -94,7 +106,7 @@
         import { DualBloomPassGen } from 'https://cdn.jsdelivr.net/gh/ycw/three-dual-bloom@1.1.6/src/index.js';
         import * as topojson from 'https://cdn.skypack.dev/topojson@3';
 
-                document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             class App {
                 constructor({ canvas }) {
                     this.canvas = canvas;
@@ -249,7 +261,7 @@
                     const captureButton = document.getElementById('capture');
                     captureButton.addEventListener('click', () => {
                         console.log('Camera Zoom Level (Z Position):', this.camera.position.z);
-                        if (this.camera.position.z >= 20.5) {
+                        if (this.camera.position.z >= 11) {
                             document.getElementById('observation-details').textContent = "Something captured";
                             this.blueEarth.userData.clickable = true; // 파란 지구 클릭 가능
                         } else {
@@ -285,7 +297,7 @@
                             document.getElementById('header').style.display = 'none';
 
                             // 메시지 출력
-                            this.typeMessage("can't stop hyperstella");
+                            this.typeMessage("can't stop hyperstellar");
                         }
                     }
                 }
@@ -317,20 +329,48 @@
                 applyDistortionEffect() {
                     this.lensDistortionPass.enabled = true;
                     this.dualBloomPass.enabled = true;
+                    this.startAutoCameraMovement();
                 }
 
                 typeMessage(message) {
                     const messageElement = document.getElementById('message');
-                    messageElement.style.display = 'block';
-                    messageElement.textContent = '';
-                    let index = 0;
-                    const interval = setInterval(() => {
-                        messageElement.textContent += message[index];
-                        index++;
-                        if (index === message.length) {
-                            clearInterval(interval);
+                    if (messageElement) {
+                        messageElement.style.display = 'block';
+                        messageElement.textContent = '';
+                        let index = 0;
+                        const interval = setInterval(() => {
+                            messageElement.textContent += message[index];
+                            index++;
+                            if (index === message.length) {
+                                clearInterval(interval);
+                            }
+                        }, 100);
+                    } else {
+                        console.error("Element with id 'message' not found.");
+                    }
+                }
+
+                startAutoCameraMovement() {
+                    const movementSpeed = 0.0025;
+                    let elapsedTime = 0;
+                    const duration = 5000; // 5초 동안
+                    const initialZ = 5;
+                    const targetZ = 0;
+
+                    const moveCamera = () => {
+                        if (elapsedTime < duration) {
+                            this.camera.rotation.y += movementSpeed;
+                            const progress = elapsedTime / duration;
+                            this.camera.position.z = initialZ * (1 - progress) + targetZ * progress;
+                            elapsedTime += 16; // 약 60fps 기준
+                            requestAnimationFrame(moveCamera);
+                        } else {
+                            this.camera.position.z = targetZ; // Ensure final position is exact
+                            window.location.href = 'page3.html'; // 5초 후 페이지 이동
                         }
-                    }, 100);
+                    };
+
+                    requestAnimationFrame(moveCamera);
                 }
 
                 render() {
