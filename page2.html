@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Screen Shatter Effect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Fonts 링크 -->
+
     <style>
         html,
         body {
@@ -30,7 +32,7 @@
             margin: auto;
             text-align: center;
             user-select: none;
-            font-family: Arial;
+            font-family: 'Press Start 2P', cursive;
         }
     </style>
 </head>
@@ -94,7 +96,7 @@
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.endX, this.endY);
-            ctx.strokeStyle = "red";
+            ctx.strokeStyle = "black";
             var line_width = Math.random();
             if (line_width < .3) ctx.lineWidth = 1;
             if (line_width >= .3 && line_width <= .8) ctx.lineWidth = 2;
@@ -177,8 +179,10 @@
             DIAG = 0;
 
         var init = true,
-            sky1_src = "https://images.unsplash.com/photo-1642447226915-728dbbf73793?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8MHx8&auto=format&fit=crop&w=1513&q=80",
-            sky2_src = "http://wallpapercave.com/wp/hPB6mKS.jpg",
+<!--            sky1_src = "https://images.unsplash.com/photo-1642447226915-728dbbf73793?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8MHx8&auto=format&fit=crop&w=1513&q=80",-->
+<!--            sky2_src = "http://wallpapercave.com/wp/hPB6mKS.jpg",-->
+            sky1_src = "src/second.jpg",
+            sky2_src = "src/first.png",
             chips = [],
             pieces = [],
             intervals = [],
