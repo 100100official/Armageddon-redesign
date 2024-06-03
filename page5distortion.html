@@ -91,10 +91,10 @@
     </div>
 
     <div class="volume-controls">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume1" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume2" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume3" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume4" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume1" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume2" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume3" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume4" style="writing-mode: vertical-lr;">
     </div>
 
     <script>
@@ -172,6 +172,8 @@
                     gainNode.connect(distortion);
                     distortion.connect(audioContext.destination);
 
+                    gainNode.gain.value = 0; // 초기 볼륨을 0으로 설정
+
                     volumeControl.addEventListener('input', event => {
                         const volume = event.target.value;
                         gainNode.gain.value = volume;
@@ -194,6 +196,7 @@
     </script>
 </body>
 </html>
+
 
 
 <!-- python -m http.server -->
