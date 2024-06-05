@@ -98,10 +98,6 @@
     </div>
 
     <script>
-        document.addEventListener('dblclick', () => {
-            window.location.href = 'page6.html';
-        });
-
         const grid = document.querySelector('.grid');
         const numberOfParticles = 20;
         const particleSize = 8;
@@ -165,8 +161,8 @@
                     const gainNode = audioContext.createGain();
                     const distortion = audioContext.createWaveShaper();
 
-                    distortion.curve = createDistortionCurve(400);
-                    distortion.oversample = '4x';
+                    distortion.curve = createDistortionCurve(50); // 디스토션 강도 조절
+                    distortion.oversample = '2x'; // 디스토션 오버샘플링 줄임
 
                     source.connect(gainNode);
                     gainNode.connect(distortion);
@@ -174,9 +170,11 @@
 
                     gainNode.gain.value = 0; // 초기 볼륨을 0으로 설정
 
+                    gainNodes[index] = gainNode;
+
                     volumeControl.addEventListener('input', event => {
                         const volume = event.target.value;
-                        gainNode.gain.value = volume;
+                        gainNode.gain.value = volume * 0.5; // 전체 최대 음량을 제한
                         if (volume > 0.8) {
                             gainNode.disconnect();
                             gainNode.connect(distortion);
@@ -193,9 +191,36 @@
                 setDistortion(audioElements[3], document.getElementById('volume4'), 3);
             }
         }, { once: true });
+
+        function checkVolumes() {
+            const volume1 = parseFloat(document.getElementById('volume1').value);
+            const volume2 = parseFloat(document.getElementById('volume2').value);
+            const volume3 = parseFloat(document.getElementById('volume3').value);
+            const volume4 = parseFloat(document.getElementById('volume4').value);
+
+            if (volume1 === 1 && volume2 === 1 && volume3 === 1 && volume4 === 1) {
+                setTimeout(() => {
+                    const volume1After = parseFloat(document.getElementById('volume1').value);
+                    const volume2After = parseFloat(document.getElementById('volume2').value);
+                    const volume3After = parseFloat(document.getElementById('volume3').value);
+                    const volume4After = parseFloat(document.getElementById('volume4').value);
+
+                    if (volume1After === 1 && volume2After === 1 && volume3After === 1 && volume4After === 1) {
+                        window.location.href = 'page6.html';
+                    }
+                }, 4000);
+            }
+        }
+
+        const volumeControls = document.querySelectorAll('.volume-controls input[type="range"]');
+        volumeControls.forEach(control => {
+            control.addEventListener('input', checkVolumes);
+        });
     </script>
 </body>
 </html>
+
+
 
 
 
