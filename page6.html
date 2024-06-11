@@ -44,15 +44,28 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
+            font-size: 10px;
             font-weight: bold;
             cursor: pointer;
             background-color: gray;
             color: white;
+            padding: 3px 10px;
         }
         #goButton.active {
             background-color: green;
         }
+        .header-text-box {
+            background-color: transparent; /* 상단 글자 박스의 백그라운드 색 제거 */
+        }
+
+        .letter {
+            position: absolute;
+            font-size: 100px;
+            color: #004DEC;
+            font-weight: bold;
+        }
+
+
     </style>
     <script type="importmap">
         {
@@ -65,7 +78,7 @@
 </head>
 <body>
     <div id="slots"></div>
-    <div id="goButton" class="inactive">GO</div>
+    <div id="goButton" class="inactive">Verify</div>
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -75,6 +88,7 @@
         let simplex = new SimplexNoise();
         let collectedLetters = new Array(10).fill(null);
         let requiredLetters = 'armageddon';
+        let requiredLetters = 'ARMAGEDDON';
         let textTerrain;
 
         // 슬롯 생성
@@ -91,7 +105,7 @@
         // GO 버튼 클릭 이벤트
         goButton.addEventListener('click', () => {
             if (collectedLetters.every(letter => letter !== null)) {
-                window.location.href = 'nextpage.html'; // 다음 페이지 URL로 변경
+                window.location.href = 'page7.html'; // 다음 페이지 URL로 변경
             }
         });
 
@@ -104,37 +118,6 @@
             if (collectedLetters.every(letter => letter !== null)) {
                 goButton.classList.add('active');
                 removeTerrain();
-            }
-            updateTerrainOpacity();
-        }
-
-        // 투명도 계산 함수
-        function calculateOpacity() {
-            const filledSlots = collectedLetters.filter(letter => letter !== null).length;
-            return filledSlots / collectedLetters.length;
-        }
-
-        // 지형 투명도 업데이트 함수
-        function updateTerrainOpacity() {
-            if (textTerrain) {
-                const opacity = calculateOpacity();
-                const instances = textTerrain.instancedMesh.count;
-                const step = Math.floor(instances * opacity);
-
-                for (let i = 0; i < instances; i++) {
-                    if (i < step) {
-                        textTerrain.instancedMesh.getMatrixAt(i, textTerrain.dummy.matrix);
-                        textTerrain.dummy.scale.setScalar(0.1); // 줄어드는 효과
-                        textTerrain.dummy.updateMatrix();
-                        textTerrain.instancedMesh.setMatrixAt(i, textTerrain.dummy.matrix);
-                    } else {
-                        textTerrain.instancedMesh.getMatrixAt(i, textTerrain.dummy.matrix);
-                        textTerrain.dummy.scale.setScalar(1); // 원래 크기
-                        textTerrain.dummy.updateMatrix();
-                        textTerrain.instancedMesh.setMatrixAt(i, textTerrain.dummy.matrix);
-                    }
-                }
-                textTerrain.instancedMesh.instanceMatrix.needsUpdate = true;
             }
         }
 
@@ -153,7 +136,6 @@
                 super();
 
                 let alphabet = [..."세계의종말"];
-                let englishAlphabet = [..."armageddon"];
                 let textTexture = (() => {
                     let c = document.createElement("canvas");
                     let ctx = c.getContext("2d");
@@ -176,17 +158,6 @@
                         ctx.fillText(alphabet[i], x, y);
                     }
 
-                    for (let i = 0; i < englishAlphabet.length; i++) {
-                        let tileX = (i + alphabet.length) % 8;
-                        let tileY = Math.floor((i + alphabet.length) / 8);
-                        let x = (tileX + 0.5) * dimStep;
-                        let y = texSize - (tileY + 0.5) * dimStep;
-                        ctx.fillStyle = `rgba(0, 255, 0, 1)`;
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "middle";
-                        ctx.font = `bold ${dimStep * 0.9}px Arial`;
-                        ctx.fillText(englishAlphabet[i], x, y);
-                    }
                     let tex = new THREE.CanvasTexture(c);
                     tex.colorSpace = "srgb";
                     tex.anisotropy = anisotropy;
@@ -344,16 +315,15 @@
 
                 // 'armageddon' 글자 위치 설정
                 this.setEnglishLetters = function () {
-                    let englishAlphabet = 'armageddon';
                     let positions = new Set();
-                    while (positions.size < englishAlphabet.length) {
+                    while (positions.size < requiredLetters.length) {
                         let x = THREE.MathUtils.randInt(-20, 20);
                         let z = THREE.MathUtils.randInt(-20, 20);
                         positions.add(`${x},${z}`);
                     }
                     let positionArray = Array.from(positions);
 
-                    for (let i = 0; i < englishAlphabet.length; i++) {
+                    for (let i = 0; i < requiredLetters.length; i++) {
                         let [x, z] = positionArray[i].split(',').map(Number);
                         let letterIdx = i + alphabet.length; // '세계의종말' 다음 인덱스부터 시작
                         this.instancedMesh.geometry.attributes.letterIdx.setX((x + 20) * tileDim + (z + 20), letterIdx);
@@ -419,6 +389,30 @@
 
             fadeOut.start();
         }
+
+        // 새 기능 추가: 5초 간격으로 문자 표시
+        function showLetter(index) {
+            if (index >= requiredLetters.length) return;
+
+            const letter = document.createElement('div');
+            letter.className = 'letter';
+            letter.innerText = requiredLetters[index];
+            document.body.appendChild(letter);
+
+            // 랜덤 위치 설정
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            letter.style.left = `${x}px`;
+            letter.style.top = `${y}px`;
+
+            // 다음 글자 표시
+            setTimeout(() => {
+                showLetter(index + 1);
+            }, 5000);
+        }
+
+        // 첫 번째 글자 표시 시작
+        showLetter(0);
     </script>
 </body>
 </html>

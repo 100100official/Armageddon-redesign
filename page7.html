@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Image</title>
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        window.addEventListener('load', init); // Wait for loading
+        window.addEventListener('resize', onResize); // When window resized
+
+        let renderer, scene, camera;
+        let particles;
+
+        function init() {
+            // Get window size
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // Create webgl renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.querySelector('#myCanvas'),
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(windowWidth, windowHeight);
+
+            // Create scene
+            scene = new THREE.Scene();
+
+            // Create camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.2;
+            camera.position.set(0, 20, 0);
+            controls.update();
+            scene.add(camera);
+
+            // Create light
+            const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.0);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+            scene.add(directionalLight);
+
+            // Load image and create particles
+            loadImageAndCreateParticles();
+
+            // Render loop
+            const render = () => {
+                drawParticles();
+                controls.update();
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+            };
+            render();
+        }
+
+        function loadImageAndCreateParticles() {
+            const image = new Image();
+            image.src = 'src/aespa1.png'; // 이미지 경로를 여기에 입력하세요
+            image.onload = () => {
+                createParticles(image);
+            };
+        }
+
+        function getImageData(image) {
+            const w = image.width;
+            const h = image.height;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = w;
+            canvas.height = h;
+
+            ctx.drawImage(image, 0, 0);
+            const imageData = ctx.getImageData(0, 0, w, h);
+
+            return imageData;
+        }
+
+        function createParticles(image) {
+            const imageData = getImageData(image);
+
+            const geometry = new THREE.BufferGeometry();
+            const vertices_base = [];
+            const colors_base = [];
+
+            const width = imageData.width;
+            const height = imageData.height;
+
+            // Set particle info
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const posX = 0.03 * (-x + width / 2);
+                    const posY = 0;
+                    const posZ = 0.03 * (y - height / 2);
+                    vertices_base.push(posX, posY, posZ);
+
+                    const index = (y * width + x) * 4;
+                    const r = imageData.data[index] / 255;
+                    const g = imageData.data[index + 1] / 255;
+                    const b = imageData.data[index + 2] / 255;
+                    colors_base.push(r, g, b);
+                }
+            }
+            const vertices = new Float32Array(vertices_base);
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            const colors = new Float32Array(colors_base);
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // Set shader material
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { type: 'f', value: 0.0 },
+                    size: { type: 'f', value: 5.0 },
+                },
+                vertexShader: vertexSource,
+                fragmentShader: fragmentSource,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        function drawParticles(t) {
+            // Update particle info
+            if (particles) {
+                particles.geometry.attributes.position.needsUpdate = true;
+                particles.geometry.attributes.color.needsUpdate = true;
+            }
+        }
+
+        function onResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(width, height);
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+
+        // Shader Souce
+        const vertexSource = `
+            attribute vec3 color;
+            uniform float time;
+            uniform float size;
+            varying vec3 vColor;
+            varying float vGray;
+            void main() {
+                vColor = color;
+                vGray = (vColor.x + vColor.y + vColor.z) / 3.0;
+                gl_PointSize = size * vGray * 3.0;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentSource = `
+            varying vec3 vColor;
+            varying float vGray;
+            void main() {
+                float gray = vGray;
+                if (gray > 0.5) {
+                    gray = 0.0;
+                } else {
+                    gray = 1.0;
+                }
+                gl_FragColor = vec4(vColor, gray);
+            }
+        `;
+    </script>
+</body>
+</html>
