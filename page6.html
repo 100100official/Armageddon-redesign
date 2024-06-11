@@ -8,6 +8,50 @@
         body {
             overflow: hidden;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #slots {
+            display: flex;
+            margin: 10px 0;
+        }
+        .slot {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .inputSlot {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            margin: 0 5px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        #goButton {
+            width: 60px;
+            height: 30px;
+            border: 1px solid #000;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: gray;
+            color: white;
+        }
+        #goButton.active {
+            background-color: green;
         }
     </style>
     <script type="importmap">
@@ -20,6 +64,8 @@
     </script>
 </head>
 <body>
+    <div id="slots"></div>
+    <div id="goButton" class="inactive">GO</div>
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -27,12 +73,87 @@
         import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
 
         let simplex = new SimplexNoise();
+        let collectedLetters = new Array(10).fill(null);
+        let requiredLetters = 'armageddon';
+        let textTerrain;
+
+        // 슬롯 생성
+        const slotsContainer = document.getElementById('slots');
+        const goButton = document.getElementById('goButton');
+        for (let i = 0; i < 10; i++) {
+            const slot = document.createElement('input');
+            slot.classList.add('inputSlot');
+            slot.maxLength = 1;
+            slot.addEventListener('input', (event) => handleInput(event, i));
+            slotsContainer.appendChild(slot);
+        }
+
+        // GO 버튼 클릭 이벤트
+        goButton.addEventListener('click', () => {
+            if (collectedLetters.every(letter => letter !== null)) {
+                window.location.href = 'nextpage.html'; // 다음 페이지 URL로 변경
+            }
+        });
+
+        // 슬롯 업데이트 함수
+        function updateSlots() {
+            const slots = document.querySelectorAll('.inputSlot');
+            slots.forEach((slot, index) => {
+                slot.value = collectedLetters[index] || '';
+            });
+            if (collectedLetters.every(letter => letter !== null)) {
+                goButton.classList.add('active');
+                removeTerrain();
+            }
+            updateTerrainOpacity();
+        }
+
+        // 투명도 계산 함수
+        function calculateOpacity() {
+            const filledSlots = collectedLetters.filter(letter => letter !== null).length;
+            return filledSlots / collectedLetters.length;
+        }
+
+        // 지형 투명도 업데이트 함수
+        function updateTerrainOpacity() {
+            if (textTerrain) {
+                const opacity = calculateOpacity();
+                const instances = textTerrain.instancedMesh.count;
+                const step = Math.floor(instances * opacity);
+
+                for (let i = 0; i < instances; i++) {
+                    if (i < step) {
+                        textTerrain.instancedMesh.getMatrixAt(i, textTerrain.dummy.matrix);
+                        textTerrain.dummy.scale.setScalar(0.1); // 줄어드는 효과
+                        textTerrain.dummy.updateMatrix();
+                        textTerrain.instancedMesh.setMatrixAt(i, textTerrain.dummy.matrix);
+                    } else {
+                        textTerrain.instancedMesh.getMatrixAt(i, textTerrain.dummy.matrix);
+                        textTerrain.dummy.scale.setScalar(1); // 원래 크기
+                        textTerrain.dummy.updateMatrix();
+                        textTerrain.instancedMesh.setMatrixAt(i, textTerrain.dummy.matrix);
+                    }
+                }
+                textTerrain.instancedMesh.instanceMatrix.needsUpdate = true;
+            }
+        }
+
+        function handleInput(event, index) {
+            const letter = event.target.value.toLowerCase();
+            if (requiredLetters.includes(letter)) {
+                collectedLetters[index] = letter;
+                updateSlots();
+            } else {
+                event.target.value = '';
+            }
+        }
 
         class TextTerrain extends THREE.Object3D {
             constructor(anisotropy) {
                 super();
-                // atlas
-                let alphabet = [..."세계는종말한다"];
+
+                let alphabet = [..."세계의종말"];
+                let englishAlphabet = [..."armageddon"];
                 let textTexture = (() => {
                     let c = document.createElement("canvas");
                     let ctx = c.getContext("2d");
@@ -42,6 +163,7 @@
                     ctx.clearRect(0, 0, texSize, texSize);
                     let dim = 8;
                     let dimStep = texSize / dim;
+
                     for (let i = 0; i < alphabet.length; i++) {
                         let tileX = i % 8;
                         let tileY = Math.floor(i / 8);
@@ -53,27 +175,40 @@
                         ctx.font = `bold ${dimStep * 0.9}px Arial`;
                         ctx.fillText(alphabet[i], x, y);
                     }
+
+                    for (let i = 0; i < englishAlphabet.length; i++) {
+                        let tileX = (i + alphabet.length) % 8;
+                        let tileY = Math.floor((i + alphabet.length) / 8);
+                        let x = (tileX + 0.5) * dimStep;
+                        let y = texSize - (tileY + 0.5) * dimStep;
+                        ctx.fillStyle = `rgba(0, 255, 0, 1)`;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.font = `bold ${dimStep * 0.9}px Arial`;
+                        ctx.fillText(englishAlphabet[i], x, y);
+                    }
                     let tex = new THREE.CanvasTexture(c);
                     tex.colorSpace = "srgb";
                     tex.anisotropy = anisotropy;
                     return tex;
-                })(); // atlas
+                })();
 
                 let tileDim = 200;
 
+                // instancedMesh 생성 부분
                 let g = new THREE.PlaneGeometry();
                 g.setAttribute("letterIdx", new THREE.InstancedBufferAttribute(new Float32Array(Array.from({
                     length: tileDim * tileDim
                 }, () => {
                     return THREE.MathUtils.randInt(0, alphabet.length - 1)
                 })), 1));
-                
+
                 let m = new THREE.MeshBasicMaterial({
                     map: textTexture,
                     transparent: true,
+                    opacity: 1.0, // 초기 투명도
                     alphaTest: 0.01,
                     side: THREE.DoubleSide,
-                    //forceSinglePass: true,
                     onBeforeCompile: shader => {
                         shader.vertexShader = `
                             attribute float letterIdx;
@@ -85,7 +220,6 @@
                             vLetterIdx = letterIdx;
                             `
                         );
-                        //console.log(shader.vertexShader);
 
                         shader.fragmentShader = `
                             varying float vLetterIdx;
@@ -102,9 +236,9 @@
                             diffuseColor *= sampledDiffuseColor;
                             `
                         );
-                        //console.log(shader.fragmentShader);
                     }
                 });
+
                 let io = new THREE.InstancedMesh(g, m, tileDim * tileDim);
                 this.instancedMesh = io;
 
@@ -148,7 +282,7 @@
                         }
                     })
                 }
-                
+
                 // make it grid
                 for (let z = 0; z < tileDim; z++) {
                     for (let x = 0; x < tileDim; x++) {
@@ -160,13 +294,12 @@
                 } // make it grid
 
                 this.add(io);
-                
+
                 // actions section
                 this.actions = Array.from({
                     length: 5000
                 }, () => {
                     let action = (delay) => {
-                        //console.log("action started");
                         let getFreeLetterIndex = () => {
                             let letterIndex = Math.floor(Math.random() * this.finals.length);;
                             if (!this.finals[letterIndex].inAction) {
@@ -208,10 +341,29 @@
                     }
                     return action;
                 }) // actions section
-                
-                //console.log(this.actions)
 
+                // 'armageddon' 글자 위치 설정
+                this.setEnglishLetters = function () {
+                    let englishAlphabet = 'armageddon';
+                    let positions = new Set();
+                    while (positions.size < englishAlphabet.length) {
+                        let x = THREE.MathUtils.randInt(-20, 20);
+                        let z = THREE.MathUtils.randInt(-20, 20);
+                        positions.add(`${x},${z}`);
+                    }
+                    let positionArray = Array.from(positions);
 
+                    for (let i = 0; i < englishAlphabet.length; i++) {
+                        let [x, z] = positionArray[i].split(',').map(Number);
+                        let letterIdx = i + alphabet.length; // '세계의종말' 다음 인덱스부터 시작
+                        this.instancedMesh.geometry.attributes.letterIdx.setX((x + 20) * tileDim + (z + 20), letterIdx);
+                        this.dummy.position.set(x, 5, z); // y축을 5로 높여 클릭 가능하도록 설정
+                        this.dummy.position.y = 5 + simplex.noise(x * 0.01, z * 0.01) * 7.5; // y축 위치 조정
+                        this.dummy.updateMatrix();
+                        this.instancedMesh.setMatrixAt((x + 20) * tileDim + (z + 20), this.dummy.matrix);
+                    }
+                }
+                this.setEnglishLetters();
             }
         }
 
@@ -223,6 +375,7 @@
         let renderer = new THREE.WebGLRenderer({
             antialias: true
         });
+
         renderer.setSize(innerWidth, innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -235,9 +388,7 @@
         let controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        //scene.add(new THREE.GridHelper());
-
-        let textTerrain = new TextTerrain(renderer.capabilities.getMaxAnisotropy());
+        textTerrain = new TextTerrain(renderer.capabilities.getMaxAnisotropy());
         scene.add(textTerrain);
         textTerrain.actions.forEach(action => {
             action((Math.random() * 0.9 + 0.1) * 10000);
@@ -253,7 +404,21 @@
             controls.update();
             textTerrain.instancedMesh.instanceMatrix.needsUpdate = true;
             renderer.render(scene, camera);
-        })
+        });
+
+        function removeTerrain() {
+            let duration = 2000;
+            let fadeOut = new TWEEN.Tween({ opacity: 1 })
+                .to({ opacity: 0 }, duration)
+                .onUpdate(function () {
+                    textTerrain.instancedMesh.material.opacity = this.opacity;
+                })
+                .onComplete(function () {
+                    scene.remove(textTerrain);
+                });
+
+            fadeOut.start();
+        }
     </script>
 </body>
 </html>
