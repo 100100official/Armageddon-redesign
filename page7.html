@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Image</title>
+    <title>Particle Image Distortion</title>
     <style>
         body {
             overflow: hidden;
@@ -11,6 +11,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: row;
+            place-items: center;
+            place-content: center;
+            width: 500px;
+            max-width: 90vw;
+            z-index: 1;
+        }
+        .digit, .divider {
+            display: flex;
+            margin: 0 -10px;
+        }
+        .digit svg {
+            width: 100%;
+        }
+        .bg, .shadow, .credits {
+            display: none; /* Hide unnecessary elements */
         }
     </style>
     <script type="importmap">
@@ -24,32 +47,98 @@
 </head>
 <body>
     <canvas id="myCanvas"></canvas>
+
+    <templates>
+      <svg id="number-0" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M79 14 C62 24 28 49 27 58 C25 70 24 103 18 126 C13 149 24 196 38 212 C52 228 71 222 79 226 C87 231 112 231 118 226 C124 222 145 204 149 204 C154 204 157 162 153 144 C149 126 169 103 159 73 C149 43 132 21 112 20" stroke="#FD7427" stroke-width="1.06167" />
+      </svg>
+
+      <svg id="number-1" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M41 71 C47 61 61 42 69 42 C79 42 108 2 109 12 C109 21 109 70 109 82 C109 94 106 156 105 168 C104 178 107 214 109 231" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-2" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M36 76 C35 66 38 45 51 35 C67 22 92 9 104 14 C116 19 152 57 153 76 C153 95 91 135 86 148 C80 161 38 208 32 217 C26 225 75 217 86 217 C94 217 134 220 153 222" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-3" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M38 69 C44 51 63 14 93 14 C122 13 149 50 159 69 L116 113 L68 122 C91 123 140 127 150 143 C162 163 167 166 165 186 C164 205 111 234 102 234 C93 234 39 226 20 196" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-4" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M129 230 V19 C95 61 25 150 22 168 C19 191 86 176 98 176 C107 176 148 176 167 176" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-5" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M151 21 H48 C44 49 37 115 38 121 C39 128 85 102 105 102 C125 102 158 142 158 161 C157 179 135 221 99 222 C62 224 29 194 25 177" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-6" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M159 70 C144 51 111 14 94 14 C73 14 29 64 27 80 C25 97 18 188 33 203 C48 218 87 233 94 233 C101 233 152 207 154 186 C155 165 151 121 139 113 C128 104 92 93 81 93 C72 93 35 129 18 147" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-7" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M16 19 C37 22 81 28 87 28 C95 28 147 9 147 19 C147 28 99 110 93 138 C88 161 52 209 34 231" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-8" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M87 17 C68 30 25 56 26 73 C27 90 75 116 92 119 C110 123 158 151 158 169 C158 187 126 231 96 230 C67 229 18 200 17 179 C16 158 39 133 47 132 C56 131 150 107 151 67 C151 35 115 20 96 17" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-9" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M137 113 C129 123 105 152 86 152 C68 152 24 113 22 104 C21 95 31 41 40 37 C48 33 85 14 97 16 C109 18 158 73 156 113 C155 144 137 188 129 207 C119 215 97 232 86 232 C75 232 29 198 8 180" stroke="#FD7427" stroke-width="1" />
+      </svg>
+
+      <svg id="number-divider" width="180" height="248" viewBox="0 0 180 248" fill="none" xmlns="http://wwww3org/2000/svg">
+        <path d="M91 89 L94 93 L111 89 L85 68 L71 83 L101 97 L91 83 L76 64 L92 68 L85 99 L107 97 L103 64 L69 93 L98 121 L85 136 L103 183 L76 180 L107 169 L103 148 L69 162 L85 169 L91 188 C94 178 101 159 107 157 C114 153 81 142 76 145 C72 147 84 159 91 165" stroke="#FD7427" stroke-width="1" />
+      </svg>
+    </templates>
+
+    <div class="countdown flex">
+        <div class="dd flex">
+            <div class="digit"></div>
+            <div class="digit"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="mm flex">
+            <div class="digit"></div>
+            <div class="digit"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="hh flex">
+            <div class="digit"></div>
+            <div class="digit"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="ss flex">
+            <div class="digit"></div>
+            <div class="digit"></div>
+        </div>
+    </div>
+
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        window.addEventListener('load', init); // Wait for loading
-        window.addEventListener('resize', onResize); // When window resized
+        window.addEventListener('load', init); // 페이지 로드 후 초기화
+        window.addEventListener('resize', onResize); // 창 크기 변경 시 조정
 
         let renderer, scene, camera;
         let particles;
 
         function init() {
-            // Get window size
+            // Three.js 기본 설정
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
 
-            // Create webgl renderer
             renderer = new THREE.WebGLRenderer({
                 canvas: document.querySelector('#myCanvas'),
             });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(windowWidth, windowHeight);
 
-            // Create scene
             scene = new THREE.Scene();
 
-            // Create camera
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
             const controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
@@ -58,28 +147,32 @@
             controls.update();
             scene.add(camera);
 
-            // Create light
             const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.0);
             scene.add(ambientLight);
             const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.0);
             scene.add(directionalLight);
 
-            // Load image and create particles
             loadImageAndCreateParticles();
-
-            // Render loop
-            const render = () => {
-                drawParticles();
-                controls.update();
-                renderer.render(scene, camera);
-                requestAnimationFrame(render);
-            };
             render();
+
+            // Initialize countdown
+            renderCountdown({ dd: 0, hh: 0, mm: 0, ss: 10 }, true);
+            const countdown = new Countdown({
+                onDone: (time) => {
+                    console.log(time);
+                    alert('we are coming');
+                    window.location.href = 'https://aespa.com/';
+                },
+                onTick: (time) => {
+                    renderCountdown(time);
+                }
+            });
+            countdown.start();
         }
 
         function loadImageAndCreateParticles() {
             const image = new Image();
-            image.src = 'src/aespa1.png'; // 이미지 경로를 여기에 입력하세요
+            image.src = 'src/aespa001.png'; // 이미지 경로
             image.onload = () => {
                 createParticles(image);
             };
@@ -96,14 +189,11 @@
             canvas.height = h;
 
             ctx.drawImage(image, 0, 0);
-            const imageData = ctx.getImageData(0, 0, w, h);
-
-            return imageData;
+            return ctx.getImageData(0, 0, w, h);
         }
 
         function createParticles(image) {
             const imageData = getImageData(image);
-
             const geometry = new THREE.BufferGeometry();
             const vertices_base = [];
             const colors_base = [];
@@ -111,7 +201,6 @@
             const width = imageData.width;
             const height = imageData.height;
 
-            // Set particle info
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
                     const posX = 0.03 * (-x + width / 2);
@@ -126,12 +215,12 @@
                     colors_base.push(r, g, b);
                 }
             }
+
             const vertices = new Float32Array(vertices_base);
             geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
             const colors = new Float32Array(colors_base);
             geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-            // Set shader material
             const material = new THREE.ShaderMaterial({
                 uniforms: {
                     time: { type: 'f', value: 0.0 },
@@ -149,7 +238,6 @@
         }
 
         function drawParticles(t) {
-            // Update particle info
             if (particles) {
                 particles.geometry.attributes.position.needsUpdate = true;
                 particles.geometry.attributes.color.needsUpdate = true;
@@ -167,7 +255,6 @@
             camera.updateProjectionMatrix();
         }
 
-        // Shader Souce
         const vertexSource = `
             attribute vec3 color;
             uniform float time;
@@ -178,7 +265,10 @@
                 vColor = color;
                 vGray = (vColor.x + vColor.y + vColor.z) / 3.0;
                 gl_PointSize = size * vGray * 3.0;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                vec3 pos = position;
+                pos.x += sin(time + position.y) * 0.5;
+                pos.y += cos(time + position.x) * 0.5;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
             }
         `;
 
@@ -195,6 +285,254 @@
                 gl_FragColor = vec4(vColor, gray);
             }
         `;
+
+        function render() {
+            if (particles) {  // particles가 유효한 경우에만 업데이트 및 렌더링
+                particles.material.uniforms.time.value += 0.05;
+                particles.geometry.attributes.position.needsUpdate = true;
+                particles.geometry.attributes.color.needsUpdate = true;
+            }
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+
+        // Countdown code
+        class NoizyNumber {
+            constructor(templateElement, { duplicatesCount = 20, fps = 24, noizeRadius = 30 } = {}) {
+                this.templateElement = templateElement;
+                this.element = this.templateElement.cloneNode(true);
+                this.pathElement = this.element.querySelector("path");
+                this.originalPath = this.pathElement.getAttribute("d");
+                this.originalPathList = this.originalPath.split(" ");
+
+                this.element.id = this.element + Math.random();
+
+                this.pathElementsStore = [this.pathElement];
+                this.timeoutStore = null;
+
+                this.duplicatesCount = duplicatesCount;
+                this.fps = fps;
+                this.delay = 1000 / this.fps;
+                this.noizeRadius = noizeRadius;
+
+                this.init();
+
+                return this;
+            }
+
+            createDuplicatePaths() {
+                Array(this.duplicatesCount)
+                    .fill()
+                    .forEach(() => {
+                        const cloneElement = this.pathElement.cloneNode();
+                        cloneElement.setAttribute("data-is-clone", true);
+
+                        this.element.appendChild(cloneElement);
+                        this.pathElementsStore.push(cloneElement);
+                    });
+            }
+
+            noizePath(pathElement) {
+                const result = this.originalPathList
+                    .map((position) => {
+                        const command = position.match(/[a-z]/i)?.[0] || "";
+                        const radius = Math.random() * this.noizeRadius;
+                        const noize = Math.round(Math.random() * (radius * 2) - radius);
+                        const value = parseInt(position.slice(command ? 1 : 0));
+
+                        return `${command}${value + noize}`;
+                    })
+                    .join(" ");
+
+                const scale = 0.7 + Math.random() * 0.5;
+                const opacity = 0.5 + Math.random() * 0.5;
+                const blur = Math.floor(Math.random() * 2);
+                const color = [
+                    "209, 69, 14",
+                    "253, 116, 39",
+                    "255, 149, 60",
+                    "255, 141, 0"
+                ][Math.round(Math.random() * 4)];
+                pathElement.style.transform = `scale(${scale})`;
+                pathElement.style.transformOrigin = `center`;
+                pathElement.style.filter = `blur(${blur}px)`;
+                pathElement.style.stroke = `rgba(${color}, ${opacity})`;
+                pathElement.setAttribute("d", result);
+            }
+
+            handleTick() {
+                this.pathElementsStore.forEach(this.noizePath.bind(this));
+
+                const scale = 1 + Math.random() * 0.2;
+                this.element.style.transform = `scale(${scale})`;
+                this.element.style.transformOrigin = `center`;
+            }
+
+            animate() {
+                clearTimeout(this.timeoutStore);
+
+                this.handleTick();
+
+                this.timeoutStore = setTimeout(this.animate.bind(this), this.delay);
+            }
+
+            init() {
+                this.createDuplicatePaths();
+                this.animate();
+            }
+        }
+
+        class Countdown {
+            constructor({ initialSeconds = 10, onTick, onDone } = {}) {
+                this.date = new Date();
+                this.lastTick = Date.now();
+                this.time = {
+                    dd: 0,
+                    hh: 0,
+                    mm: 0,
+                    ss: initialSeconds
+                };
+
+                this.onTick = onTick;
+                this.onDone = onDone;
+            }
+
+            tick() {
+                const now = Date.now();
+
+                if (now - this.lastTick < 1000) {
+                    return setTimeout(this.tick.bind(this), 50);
+                } else {
+                    this.lastTick = now;
+                }
+
+                --this.time.ss;
+
+                if (this.time.ss < 0) {
+                    --this.time.mm;
+                    this.time.ss = 0;
+                }
+
+                if (this.time.mm < 0) {
+                    --this.time.hh;
+                    this.time.mm = 0;
+                }
+
+                if (this.time.hh < 0) {
+                    --this.time.dd;
+                    this.time.hh = 0;
+                }
+
+                const isDone =
+                    this.time.dd === 0 &&
+                    this.time.hh === 0 &&
+                    this.time.mm === 0 &&
+                    this.time.ss === 0;
+
+                if (isDone) {
+                    this.onDone?.(this.time);
+                } else {
+                    this.onTick?.(this.time);
+
+                    requestAnimationFrame(() => {
+                        this.tick();
+                    });
+                }
+            }
+
+            start() {
+                this.tick();
+            }
+        }
+
+        const normalizeDigits = (digits) => {
+            digits.toString();
+        };
+
+        const countdownElement = document.querySelector(".countdown");
+        const countdownDDElement = countdownElement.querySelector(".dd");
+        const countdownHHElement = countdownElement.querySelector(".hh");
+        const countdownMMElement = countdownElement.querySelector(".mm");
+        const countdownSSElement = countdownElement.querySelector(".ss");
+        let previousTime;
+
+        const timeToArray = (timeNumber = 0) =>
+            [...timeNumber.toString().split("").reverse(), "0"].splice(0, 2).reverse();
+
+        const dayDigitElements = document.querySelectorAll(".countdown .dd .digit");
+        const hourDigitElements = document.querySelectorAll(".countdown .hh .digit");
+        const minuteDigitElements = document.querySelectorAll(".countdown .mm .digit");
+        const secondDigitElements = document.querySelectorAll(".countdown .ss .digit");
+        const dividerElements = document.querySelectorAll(".countdown .divider");
+        const dividerTemplateElement = document.querySelector(`#number-divider`);
+
+        const timeTypesList = ["dd", "hh", "mm", "ss"];
+        const digitElementsMap = {
+            dd: dayDigitElements,
+            hh: hourDigitElements,
+            mm: minuteDigitElements,
+            ss: secondDigitElements
+        };
+
+        const setChildren = (parentElement, childrenElement) => {
+            try {
+                parentElement.innerHTML = "";
+                parentElement.appendChild(childrenElement);
+            } catch (e) {
+                console.error(e);
+            }
+
+            return parentElement;
+        };
+
+        const setNoizyNumber = (parentElement, templateElement) => {
+            const noizyNumber = new NoizyNumber(templateElement);
+
+            setChildren(parentElement, noizyNumber.element);
+        };
+
+        const renderCountdown = (time, isInit) => {
+            timeTypesList.forEach((timeType) => {
+                if (isInit || previousTime?.[timeType] !== time[timeType]) {
+                    const previousTimeArray = previousTime?.[timeType]
+                        ? timeToArray(previousTime?.[timeType])
+                        : [];
+                    const timeArray = timeToArray(time[timeType]);
+
+                    if (!previousTime) {
+                        previousTime = {};
+                    }
+                    previousTime[timeType] = time[timeType];
+
+                    timeArray.forEach((timeValue, index) => {
+                        if (isInit || previousTimeArray[index] != parseInt(timeValue)) {
+                            const templateElement = document.querySelector(
+                                `#number-${timeValue}`
+                            );
+
+                            digitElementsMap[timeType][index].classList.add("animate-transition");
+                            setTimeout(() => {
+                                digitElementsMap[timeType][index].classList.remove(
+                                    "animate-transition"
+                                );
+                            }, 250);
+
+                            setNoizyNumber(digitElementsMap[timeType][index], templateElement);
+                        }
+                    });
+                }
+            });
+
+            if (isInit) {
+                dividerElements.forEach((dividerElement) => {
+                    setNoizyNumber(dividerElement, dividerTemplateElement);
+                });
+
+                previousTime = time;
+            }
+        };
+
+        renderCountdown({ dd: 0, hh: 0, mm: 0, ss: 10 }, true);
     </script>
 </body>
 </html>

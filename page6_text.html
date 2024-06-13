@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 6</title>
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const pixelDataPath = 'src/pixel_data.json'; // JSON 파일 경로
+
+        function getClosestColor(r, g, b) {
+            const blue = [0, 77, 236];
+            const black = [1, 5, 24];
+
+            const distanceToBlue = Math.sqrt((r - blue[0]) ** 2 + (g - blue[1]) ** 2 + (b - blue[2]) ** 2);
+            const distanceToBlack = Math.sqrt((r - black[0]) ** 2 + (g - black[1]) ** 2 + (b - black[2]) ** 2);
+
+            return distanceToBlue < distanceToBlack ? 'black' : 'green';
+        }
+
+        fetch(pixelDataPath)
+            .then(response => response.json())
+            .then(pixelData => {
+                const logoWidth = pixelData.width;
+                const logoHeight = pixelData.height;
+                const data = pixelData.data;
+
+                // Create the scene
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xffffff);
+
+                // Create the camera
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 500;
+
+                // Create the renderer
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                // Create the text texture
+                const texSize = 2048;
+                const alphabet = [..."세계의 종말"];
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = texSize;
+                canvas.height = texSize;
+                ctx.clearRect(0, 0, texSize, texSize);
+                const dim = 8;
+                const dimStep = texSize / dim;
+                for (let i = 0; i < alphabet.length; i++) {
+                    const tileX = i % 8;
+                    const tileY = Math.floor(i / 8);
+                    const x = (tileX + 0.5) * dimStep;
+                    const y = texSize - (tileY + 0.5) * dimStep;
+                    ctx.fillStyle = `rgba(0, 0, 0, 1)`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = `bold ${dimStep * 0.9}px Arial`;
+                    ctx.fillText(alphabet[i], x, y);
+                }
+                const textTexture = new THREE.CanvasTexture(canvas);
+                textTexture.colorSpace = "srgb";
+
+                // Create the text material
+                const material = new THREE.MeshBasicMaterial({
+                    map: textTexture,
+                    transparent: true,
+                    alphaTest: 0.01,
+                    side: THREE.DoubleSide
+                });
+
+                // Create the instanced mesh
+                const tileDim = 200;
+                const geometry = new THREE.PlaneGeometry(1, 1);
+                const instancedMesh = new THREE.InstancedMesh(geometry, material, tileDim * tileDim);
+
+                const dummy = new THREE.Object3D();
+                let index = 0;
+
+                for (let z = 0; z < tileDim; z++) {
+                    for (let x = 0; x < tileDim; x++) {
+                        const dx = -(tileDim - 1) * 0.5 + x;
+                        const dz = -(tileDim - 1) * 0.5 + z;
+
+                        const pixelX = Math.floor((dx + tileDim / 2) * (logoWidth / tileDim));
+                        const pixelY = Math.floor((dz + tileDim / 2) * (logoHeight / tileDim));
+                        const [r, g, b] = data[pixelY][pixelX];
+
+                        const color = getClosestColor(r, g, b);
+
+                        dummy.position.set(dx, dz, 0);
+                        dummy.updateMatrix();
+
+                        instancedMesh.setMatrixAt(index, dummy.matrix);
+
+                        const colorVector = color === 'black' ? new THREE.Color(0x000000) : new THREE.Color(0x00ff00);
+                        instancedMesh.setColorAt(index, colorVector);
+
+                        index++;
+                    }
+                }
+
+                instancedMesh.instanceMatrix.needsUpdate = true;
+                instancedMesh.instanceColor.needsUpdate = true;
+
+                scene.add(instancedMesh);
+
+                // Create controls
+                const controls = new OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    controls.update();
+                    renderer.render(scene, camera);
+                }
+
+                animate();
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            });
+    </script>
+</body>
+</html>

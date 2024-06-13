@@ -38,7 +38,7 @@
         }
         #controls {
             position: absolute;
-            bottom: 50px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -48,10 +48,10 @@
             background-color: limegreen;
             border: none;
             color: black;
-            padding: 10px 20px;
+            padding: 5px 15px;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 3px;
         }
         .control-button:active {
             background-color: darkgreen;
@@ -81,7 +81,7 @@
 </head>
 <body>
     <h1 id="header" style="position: absolute; top: 0; width: 100%; text-align: center; color: white; z-index: 10;">
-        If parallel worlds were to meet, what would happen? </br> zoom out to find out something
+        If parallel worlds were to collide, what would happen? </br> Zoom out to find out something
     </h1>
 
     <canvas id="scene"></canvas>
@@ -262,7 +262,7 @@
                     captureButton.addEventListener('click', () => {
                         console.log('Camera Zoom Level (Z Position):', this.camera.position.z);
                         if (this.camera.position.z >= 11) {
-                            document.getElementById('observation-details').textContent = "Something captured";
+                            document.getElementById('observation-details').textContent = "CAPTURED";
                             this.blueEarth.userData.clickable = true; // 파란 지구 클릭 가능
                         } else {
                             document.getElementById('observation-details').textContent = "Observation Date: N/A - Location: N/A";

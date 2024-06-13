@@ -64,8 +64,6 @@
             color: #004DEC;
             font-weight: bold;
         }
-
-
     </style>
     <script type="importmap">
         {
@@ -87,7 +85,6 @@
 
         let simplex = new SimplexNoise();
         let collectedLetters = new Array(10).fill(null);
-        let requiredLetters = 'armageddon';
         let requiredLetters = 'ARMAGEDDON';
         let textTerrain;
 
@@ -122,7 +119,7 @@
         }
 
         function handleInput(event, index) {
-            const letter = event.target.value.toLowerCase();
+            const letter = event.target.value.toUpperCase();
             if (requiredLetters.includes(letter)) {
                 collectedLetters[index] = letter;
                 updateSlots();
