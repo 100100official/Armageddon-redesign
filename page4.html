@@ -42,7 +42,7 @@
         svg text {
             text-transform: uppercase;
             fill: red;
-            font-size: 50px;
+            font-size: 24px;
             filter: url(#Glow);
         }
 
@@ -50,17 +50,21 @@
             width: 100%;
             height: 100%;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="crt-screen">
-        <svg viewBox="0 0 300 200" xmlns='http://www.w3.org/2000/svg'>
+        <svg id="initial-svg" viewBox="0 0 300 200" xmlns='http://www.w3.org/2000/svg'>
             <defs>
                 <filter id='screen-noise'>
                     <feTurbulence type='turbulence' result='noise' baseFrequency='0.2' numOctaves='1' seed='2' stitchTiles='noStitch' />
                     <feOffset dy="0" dx="0">
-                        <animate attributeName="dy" values="0;-20" dur=".1s" repeatCount="indefinite" />
-                        <animate attributeName="dx" values="0;20" dur=".3s" repeatCount="indefinite" />
+                        <animate attributeName="dy" values="0;-20" dur=".1s" begin="0s" repeatCount="indefinite" />
+                        <animate attributeName="dx" values="0;20" dur=".3s" begin="0s" repeatCount="indefinite" />
                     </feOffset>
                     <feComponentTransfer>
                         <feFuncR type="linear" slope="1" intercept="-0.4" />
@@ -70,7 +74,7 @@
                     <feBlend in="SourceGraphic" in2="noiseElement" mode="multiply" result="screen-content" />
                     <feTurbulence baseFrequency="0.01 1" result="waves" numOctaves="2" />
                     <feDisplacementMap in="screen-content" in2="waves" scale="2" xChannelSelector="R" yChannelSelector="R">
-                        <animate attributeName="scale" values="0;10;0;50;5" dur="9s" repeatCount="indefinite" />
+                        <animate attributeName="scale" values="0;10;0;50;5" dur="3s" begin="0s" repeatCount="indefinite" />
                     </feDisplacementMap>
                 </filter>
                 <filter id="Glow" x="-30%" y="-30%" width="160%" height="160%">
@@ -83,18 +87,35 @@
                 <pattern id="Grid" x="0" y="0" width="0.2" height="0.2">
                     <rect x="0" y="0" width="100px" height="100px" stroke='blue' fill='transparent' stroke-width='2' />
                     <rect x="2" y="0" width="100px" height="100px" stroke='green' fill='transparent' stroke-width='2' />
-                    <animateTransform attributeType="xml" attributeName="patternTransform" type="translate" values="0,0;60,40" dur="5s" repeatCount="indefinite" />
+                    <animateTransform attributeType="xml" attributeName="patternTransform" type="translate" values="0,0;60,40" dur="5s" begin="0s" repeatCount="indefinite" />
                 </pattern>
             </defs>
             <rect height="100%" width="100%" fill="url(#Grid)" filter="url(#Glow)" />
-            <text x="50%" y="50%" dy=".35em" text-anchor="middle">
-                NOISE
+            <text x="50%" y="50%" text-anchor="middle" dy="0.35em">
+                <tspan x="50%" dy="0">I'M LIKE</tspan>
             </text>
-            <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0,0;0,3;0,-2;0,0;0,5;0,0;0,-3" dur="2s" repeatCount="indefinite" />
+        </svg>
+
+        <!-- Hidden SVG that will be shown after 9 seconds -->
+        <svg id="duplicate-svg" viewBox="0 0 300 200" xmlns='http://www.w3.org/2000/svg' class="hidden">
+            <rect height="100%" width="100%" fill="url(#Grid)" filter="url(#Glow)" />
+            <text x="50%" y="25%" dy=".35em" text-anchor="middle">
+                <tspan x="50%" dy="-0.35em">SOME KIND OF</tspan>
+                <tspan x="50%" dy="1.2em">SUPERNOVA</tspan>
+            </text>
+            <text x="50%" y="75%" dy=".35em" text-anchor="middle">
+                <tspan x="50%" dy="-0.35em">SOME KIND OF</tspan>
+                <tspan x="50%" dy="1.2em">SUPERNOVA</tspan>
+            </text>
         </svg>
     </div>
 
     <script>
+        setTimeout(() => {
+            document.getElementById('initial-svg').classList.add('hidden');
+            document.getElementById('duplicate-svg').classList.remove('hidden');
+        }, 3000);
+
         document.addEventListener('dblclick', () => {
             window.location.href = 'page5distortion.html';
         });
