@@ -18,6 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js"></script>
 </head>
 <body>
+    <audio id="audio" src="src/i'mlike.wav"></audio>
     <script id="vertexShader" type="x-shader/x-vertex">
         void main() {
             gl_Position = vec4( position, 1.0 );
@@ -190,18 +191,17 @@
             vec3 lp = vec3(0.0, 0.0, 1.0) + movement;
             vec3 ld = lp - sp;
 
-            // 초기 조명 색상 설정
             vec3 lcolor1_initial = vec3(0.639, 0.635, 1.0); // A3A2FF
             vec3 lcolor2_initial = vec3(0.051, 0.337, 0.835); // 0D56D5
 
-            // 전환 후 조명 색상 설정
             vec3 lcolor1_final = vec3(0.055, 0.871, 0.463); // 0EDE76
             vec3 lcolor2_final = vec3(0.835, 0.2, 0.019); // D53305
 
-            // 시간을 기준으로 색상 전환
-            float transition_time = 10.0;
-            vec3 lcolor1 = mix(lcolor1_initial, lcolor1_final, smoothstep(transition_time, transition_time + 5.0, u_time));
-            vec3 lcolor2 = mix(lcolor2_initial, lcolor2_final, smoothstep(transition_time, transition_time + 5.0, u_time));
+            float transition_time = 0.0; // 전환 시작 시간을 0으로 설정
+            float transition_duration = 5.0; // 전환이 5초 동안 진행되도록 설정
+
+            vec3 lcolor1 = mix(lcolor1_initial, lcolor1_final, smoothstep(transition_time, transition_duration, u_time));
+            vec3 lcolor2 = mix(lcolor2_initial, lcolor2_final, smoothstep(transition_time, transition_duration, u_time));
 
             float len = length(ld);
             ld /= len;
@@ -227,35 +227,44 @@
         }
 
         void main() {
-            vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
-            uv = (2.0 * gl_FragCoord.xy / u_resolution.xy - 1.0) * aspect;
+        vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
+        uv = (2.0 * gl_FragCoord.xy / u_resolution.xy - 1.0) * aspect;
 
-            movement = camPath(u_time * speed);
-            vec3 lookAt = vec3(0.0, 0.0, 0.0);
-            vec3 camera_position = vec3(0.0, 0.0, -1.0);
+        movement = camPath(u_time * speed);
+        vec3 lookAt = vec3(0.0, 0.0, 0.0);
+        vec3 camera_position = vec3(0.0, 0.0, -1.0);
 
-            lookAt += camPath(u_time * speed + 3.0);
-            camera_position += movement;
+        lookAt += camPath(u_time * speed + 3.0);
+        camera_position += movement;
 
-            vec3 forward = normalize(lookAt - camera_position);
-            vec3 right = normalize(vec3(forward.z, 0.0, -forward.x));
-            vec3 up = normalize(cross(forward, right));
+        vec3 forward = normalize(lookAt - camera_position);
+        vec3 right = normalize(vec3(forward.z, 0.0, -forward.x));
+        vec3 up = normalize(cross(forward, right));
 
-            float FOV = 2.0;
-            vec3 ro = camera_position;
-            vec3 rd = normalize(forward + FOV * uv.x * right + FOV * uv.y * up);
+        float FOV = 2.0;
+        vec3 ro = camera_position;
+        vec3 rd = normalize(forward + FOV * uv.x * right + FOV * uv.y * up);
 
-            int objid = 0;
-            float field = 0.0;
-            float dist = rayMarching(ro, rd, clipNear, clipFar, field, objid);
-            if (dist >= clipFar) {
-                gl_FragColor = vec4(vec3(0.0), 1.0);
-                return;
-            }
+        int objid = 0;
+        float field = 0.0;
+        float dist = rayMarching(ro, rd, clipNear, clipFar, field, objid);
+        if (dist >= clipFar) {
+            gl_FragColor = vec4(vec3(0.0), 1.0);
+            return;
+        }
 
-            vec3 sp = ro + rd * dist;
-            vec3 sceneColor = lighting(sp, camera_position, 0, dist, field, rd, objid);
+        vec3 sp = ro + rd * dist;
+        vec3 sceneColor = lighting(sp, camera_position, 0, dist, field, rd, objid);
 
+        // 터널을 통과한 것처럼 3.2초에서 3.4초 사이에 화면이 급격히 밝아지는 효과 추가
+        float brightness = smoothstep(3.2, 3.4, u_time);
+        sceneColor = mix(sceneColor, vec3(1.0), brightness);
+
+        // 3.6초 이후 글로우 효과로 깜박거리게 설정 (3번 반복)
+        if (u_time >= 3.6) {
+            float glow = 0.5 + 0.5 * sin((u_time - 3.6) * 2.0 * 3.0 * PI); // 느리게 3번 깜박
+            gl_FragColor = vec4(vec3(glow), 1.0);
+        } else {
             vec3 uv3 = normalize(vec3(uv, 0.05)) * 30.0 + vec3(0.0, 0.0, u_time * 10.0);
             vec3 i = floor(uv3);
             vec3 f = fract(uv3);
@@ -264,6 +273,7 @@
 
             gl_FragColor = vec4(clamp(sceneColor, 0.0, 1.0) + star, 1.0);
         }
+    }
     </script>
 
     <div id="container" touch-action="none"></div>
@@ -356,7 +366,7 @@
             });
 
             document.addEventListener('dblclick', () => {
-                window.location.href = 'page4.html';
+                playSoundAndRedirect();
             });
         }
 
@@ -373,8 +383,25 @@
 
         function render() {
             uniforms.u_time.value += 0.01;
+
+            // 3.6초 이후 페이지 배경을 하얀색으로 변경하고 글로우 효과로 깜박거리게 설정
+            if (uniforms.u_time.value >= 3.6) {
+                document.body.style.backgroundColor = 'white';
+                document.getElementById('container').style.display = 'none';
+                return; // 애니메이션 루프 중단
+            }
+
             renderer.render(scene, camera);
         }
+
+        function playSoundAndRedirect() {
+            const audio = document.getElementById('audio');
+            audio.play();
+            audio.addEventListener('ended', () => {
+                window.location.href = 'page4.html';
+            });
+        }
+
     </script>
 </body>
 </html>

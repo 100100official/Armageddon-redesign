@@ -4,19 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Two Earths WebGL Demo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Fonts 링크 -->
+<!--    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
+
+
     <style>
+        @font-face {
+        font-family: 'Nico Moji';
+        font-style: normal;
+        font-weight: 400;
+        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
         html, body {
             padding: 0;
             margin: 0;
             height: 100%;
             overflow: hidden;
             background: black;
-            font-family: 'Press Start 2P', cursive; /* 폰트 적용 */
+<!--            font-family: 'Press Start 2P', cursive;-->
+            font-family: 'Nico Moji', sans-serif;
         }
 
-        h1 {
+        h1, h2 {
             font-size: 18px;
+            text-align: center;
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
+        }
+
+        #header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        #code-black {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            z-index: 10;
+            display: none; /* 처음에는 숨김 */
+            font-family: 'Nico Moji', sans-serif;
         }
 
         canvas {
@@ -24,7 +63,9 @@
             position: absolute;
             top: 0;
             left: 0;
+            display: none; /* 처음에는 숨김 */
         }
+
         #frame {
             position: absolute;
             top: 50%;
@@ -35,15 +76,18 @@
             transform: translate(-50%, -50%);
             box-sizing: border-box;
             pointer-events: none;
+            display: none; /* 처음에는 숨김 */
         }
 
         #controls {
             position: absolute;
-            bottom: 40px;
+            bottom: 55px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 10px;
+            display: none; /* 처음에는 숨김 */
+            font-family: 'Nico Moji', sans-serif;
         }
 
         .control-button {
@@ -54,6 +98,7 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 3px;
+            font-family: 'Nico Moji', sans-serif;
         }
 
         .control-button:active {
@@ -62,13 +107,15 @@
 
         #observation-details {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             color: limegreen;
             text-align: center;
             font-size: 16px;
             z-index: 10;
+            display: none; /* 처음에는 숨김 */
+            font-family: 'Nico Moji', sans-serif;
         }
 
         #message {
@@ -81,14 +128,42 @@
             font-size: 16px;
             z-index: 20;
             display: none;
+            font-family: 'Nico Moji', sans-serif;
         }
 
+        #modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 612px;
+            height: 792px;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        #modal img {
+            width: 100%;
+            height: 100%;
+        }
+
+        #close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1 id="header" style="position: absolute; top: 0; width: 100%; text-align: center; color: white; z-index: 10;">
-        If parallel worlds were to collide, what would happen? </br> Zoom out to find out something
-    </h1>
+    <h1 id="header">This is last message from observer</h1>
+    <h2 id="code-black">CODE BLACK</h2>
 
     <canvas id="scene"></canvas>
     <div id="frame"></div>
@@ -99,6 +174,16 @@
     </div>
     <div id="observation-details">Observation Date: N/A - Location: N/A</div>
     <div id="message"></div>
+
+    <!-- Modal -->
+    <div id="modal">
+        <button id="close-modal">&times;</button>
+        <img src="src/letter_v6.png" alt="Modal Image">
+    </div>
+
+    <!-- Audio -->
+    <audio id="background-music" src="src/page1.mp3" preload="auto"></audio>
+
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
@@ -113,6 +198,38 @@
         import * as topojson from 'https://cdn.skypack.dev/topojson@3';
 
         document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const audio = document.getElementById('background-music');
+            const header = document.getElementById('header');
+            const codeBlack = document.getElementById('code-black');
+            const canvas = document.getElementById('scene');
+            const frame = document.getElementById('frame');
+            const controls = document.getElementById('controls');
+            const observationDetails = document.getElementById('observation-details');
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+                audio.play().catch(error => {
+                    console.log('Audio playback failed:', error);
+                });
+
+                // 요소 표시
+                canvas.style.display = 'block';
+                frame.style.display = 'block';
+                controls.style.display = 'flex';
+                observationDetails.style.display = 'block';
+
+                // CODE BLACK 문구 표시 및 깜박이기
+                codeBlack.style.display = 'block';
+                codeBlack.style.animation = 'blink 1s ease-in-out 3';
+
+                // 애니메이션이 끝난 후 CODE BLACK 문구 숨기기
+                setTimeout(() => {
+                    codeBlack.style.display = '1';
+                }, 3000);
+            });
+
             class App {
                 constructor({ canvas }) {
                     this.canvas = canvas;
@@ -130,11 +247,9 @@
                     this.scene = new THREE.Scene();
                     this.scene.background = new THREE.Color(0x000000);
 
-                    // 카메라 설정
                     this.camera = new THREE.PerspectiveCamera(70, this.sizes.viewport.width / this.sizes.viewport.height, 1, 1000);
                     this.camera.position.z = 5;
 
-                    // 렌더러 설정
                     this.renderer = new THREE.WebGLRenderer({
                         canvas: this.canvas,
                         antialias: true
@@ -143,30 +258,22 @@
                     this.renderer.setSize(this.sizes.viewport.width, this.sizes.viewport.height);
                     window.addEventListener('resize', () => this.handleResize(), { passive: true });
 
-                    // 카메라 컨트롤 설정
                     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
                     this.controls.enablePan = false;
                     this.controls.enableZoom = false;
 
-                    // 원본 지구본 생성
                     this.originalEarth = await this.createEarth(0xffffff, 0);
                     this.scene.add(this.originalEarth);
 
-                    // 파란색 지구본 생성
-                    this.blueEarth = await this.createEarth(0x0000ff, 10); // 더 멀리 배치
+                    this.blueEarth = await this.createEarth(0x0000ff, 10);
                     this.scene.add(this.blueEarth);
 
-                    // 줌 인/아웃 버튼 이벤트 핸들러 추가
                     this.addZoomControls();
-
-                    // 캡처 버튼 이벤트 핸들러 추가
                     this.addCaptureButton();
 
-                    // 파란 지구 클릭 이벤트 핸들러 추가
-                    this.blueEarth.userData = { clickable: false }; // 초기 상태에서 클릭 불가능
+                    this.blueEarth.userData = { clickable: false };
                     this.canvas.addEventListener('click', this.onCanvasClick.bind(this));
 
-                    // 포스트 프로세싱 효과 설정
                     this.initPostProcessing();
 
                     this.render();
@@ -242,22 +349,18 @@
                         clearInterval(zoomOutInterval);
                     };
 
-                    // Mouse events for zoom in button
                     zoomInButton.addEventListener('mousedown', startZoomIn);
                     zoomInButton.addEventListener('mouseup', stopZoomIn);
                     zoomInButton.addEventListener('mouseleave', stopZoomIn);
 
-                    // Touch events for zoom in button
                     zoomInButton.addEventListener('touchstart', startZoomIn);
                     zoomInButton.addEventListener('touchend', stopZoomIn);
                     zoomInButton.addEventListener('touchcancel', stopZoomIn);
 
-                    // Mouse events for zoom out button
                     zoomOutButton.addEventListener('mousedown', startZoomOut);
                     zoomOutButton.addEventListener('mouseup', stopZoomOut);
                     zoomOutButton.addEventListener('mouseleave', stopZoomOut);
 
-                    // Touch events for zoom out button
                     zoomOutButton.addEventListener('touchstart', startZoomOut);
                     zoomOutButton.addEventListener('touchend', stopZoomOut);
                     zoomOutButton.addEventListener('touchcancel', stopZoomOut);
@@ -269,10 +372,10 @@
                         console.log('Camera Zoom Level (Z Position):', this.camera.position.z);
                         if (this.camera.position.z >= 11) {
                             document.getElementById('observation-details').textContent = "CAPTURED";
-                            this.blueEarth.userData.clickable = true; // 파란 지구 클릭 가능
+                            this.blueEarth.userData.clickable = true;
                         } else {
                             document.getElementById('observation-details').textContent = "Observation Date: N/A - Location: N/A";
-                            this.blueEarth.userData.clickable = false; // 파란 지구 클릭 불가능
+                            this.blueEarth.userData.clickable = false;
                         }
                     });
                 }
@@ -288,21 +391,17 @@
                         const intersects = raycaster.intersectObject(this.blueEarth);
 
                         if (intersects.length > 0) {
-                            // 파란 지구 클릭됨, 카메라 이동
                             this.camera.position.set(this.blueEarth.position.x, this.blueEarth.position.y, this.blueEarth.position.z + 5);
                             this.controls.target.copy(this.blueEarth.position);
                             this.controls.update();
 
-                            // 이미지 왜곡 효과 적용
                             this.applyDistortionEffect();
 
-                            // UI 요소 비활성화
                             document.getElementById('frame').style.display = 'none';
                             document.getElementById('controls').style.display = 'none';
                             document.getElementById('observation-details').style.display = 'none';
                             document.getElementById('header').style.display = 'none';
 
-                            // 메시지 출력
                             this.typeMessage("can't stop hyperstellar");
                         }
                     }
@@ -317,14 +416,14 @@
                         skew: 0,
                         principalPoint: new THREE.Vector2(0, 0)
                     });
-                    this.lensDistortionPass.enabled = false; // 처음에는 비활성화
+                    this.lensDistortionPass.enabled = false;
                     const DualBloomPass = DualBloomPassGen(deps);
                     this.dualBloomPass = new DualBloomPass({
                         threshold: 0.1,
                         blurriness: 4.0,
                         intensity: 5
                     });
-                    this.dualBloomPass.enabled = false; // 처음에는 비활성화
+                    this.dualBloomPass.enabled = false;
 
                     this.composer = new EffectComposer(this.renderer);
                     this.composer.addPass(new RenderPass(this.scene, this.camera));
@@ -359,7 +458,7 @@
                 startAutoCameraMovement() {
                     const movementSpeed = 0.0025;
                     let elapsedTime = 0;
-                    const duration = 5000; // 5초 동안
+                    const duration = 5000;
                     const initialZ = 5;
                     const targetZ = 0;
 
@@ -368,11 +467,11 @@
                             this.camera.rotation.y += movementSpeed;
                             const progress = elapsedTime / duration;
                             this.camera.position.z = initialZ * (1 - progress) + targetZ * progress;
-                            elapsedTime += 16; // 약 60fps 기준
+                            elapsedTime += 16;
                             requestAnimationFrame(moveCamera);
                         } else {
-                            this.camera.position.z = targetZ; // Ensure final position is exact
-                            window.location.href = 'page3.html'; // 5초 후 페이지 이동
+                            this.camera.position.z = targetZ;
+                            window.location.href = 'page4.html';
                         }
                     };
 
