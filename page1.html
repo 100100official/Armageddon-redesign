@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Two Earths WebGL Demo</title>
-<!--    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
-
 
     <style>
         @font-face {
@@ -31,7 +29,6 @@
             height: 100%;
             overflow: hidden;
             background: black;
-<!--            font-family: 'Press Start 2P', cursive;-->
             font-family: 'Nico Moji', sans-serif;
         }
 
@@ -391,18 +388,7 @@
                         const intersects = raycaster.intersectObject(this.blueEarth);
 
                         if (intersects.length > 0) {
-                            this.camera.position.set(this.blueEarth.position.x, this.blueEarth.position.y, this.blueEarth.position.z + 5);
-                            this.controls.target.copy(this.blueEarth.position);
-                            this.controls.update();
-
-                            this.applyDistortionEffect();
-
-                            document.getElementById('frame').style.display = 'none';
-                            document.getElementById('controls').style.display = 'none';
-                            document.getElementById('observation-details').style.display = 'none';
-                            document.getElementById('header').style.display = 'none';
-
-                            this.typeMessage("can't stop hyperstellar");
+                            window.location.href = 'page2.html';
                         }
                     }
                 }
@@ -429,53 +415,6 @@
                     this.composer.addPass(new RenderPass(this.scene, this.camera));
                     this.composer.addPass(this.lensDistortionPass);
                     this.composer.addPass(this.dualBloomPass);
-                }
-
-                applyDistortionEffect() {
-                    this.lensDistortionPass.enabled = true;
-                    this.dualBloomPass.enabled = true;
-                    this.startAutoCameraMovement();
-                }
-
-                typeMessage(message) {
-                    const messageElement = document.getElementById('message');
-                    if (messageElement) {
-                        messageElement.style.display = 'block';
-                        messageElement.textContent = '';
-                        let index = 0;
-                        const interval = setInterval(() => {
-                            messageElement.textContent += message[index];
-                            index++;
-                            if (index === message.length) {
-                                clearInterval(interval);
-                            }
-                        }, 100);
-                    } else {
-                        console.error("Element with id 'message' not found.");
-                    }
-                }
-
-                startAutoCameraMovement() {
-                    const movementSpeed = 0.0025;
-                    let elapsedTime = 0;
-                    const duration = 5000;
-                    const initialZ = 5;
-                    const targetZ = 0;
-
-                    const moveCamera = () => {
-                        if (elapsedTime < duration) {
-                            this.camera.rotation.y += movementSpeed;
-                            const progress = elapsedTime / duration;
-                            this.camera.position.z = initialZ * (1 - progress) + targetZ * progress;
-                            elapsedTime += 16;
-                            requestAnimationFrame(moveCamera);
-                        } else {
-                            this.camera.position.z = targetZ;
-                            window.location.href = 'page4.html';
-                        }
-                    };
-
-                    requestAnimationFrame(moveCamera);
                 }
 
                 render() {
