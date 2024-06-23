@@ -9,6 +9,12 @@
             overflow: hidden;
             margin: 0;
         }
+        #logCameraPosition, #setCameraPosition {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            margin-top: 5px;
+        }
     </style>
     <script type="importmap">
         {
@@ -20,6 +26,8 @@
     </script>
 </head>
 <body>
+<!--    <button id="logCameraPosition">Log Camera Z Position</button>-->
+    <button id="setCameraPosition">Set Camera Z Position</button>
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -33,7 +41,7 @@
             const distanceToBlue = Math.sqrt((r - blue[0]) ** 2 + (g - blue[1]) ** 2 + (b - blue[2]) ** 2);
             const distanceToBlack = Math.sqrt((r - black[0]) ** 2 + (g - black[1]) ** 2 + (b - black[2]) ** 2);
 
-            return distanceToBlue < distanceToBlack ? 'black' : 'green';
+            return distanceToBlue < distanceToBlack ? 'blue' : 'black';
         }
 
         fetch(pixelDataPath)
@@ -43,20 +51,21 @@
                 const logoHeight = pixelData.height;
                 const data = pixelData.data;
 
-                // Create the scene
+                // 씬 생성
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xffffff);
 
-                // Create the camera
+                // 카메라 생성
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 500;
+                const initialCameraZ = 7.20; // 초기 카메라 Z 값 설정
+                camera.position.z = initialCameraZ;
 
-                // Create the renderer
+                // 렌더러 생성
                 const renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
 
-                // Create the text texture
+                // 텍스트 텍스처 생성
                 const texSize = 2048;
                 const alphabet = [..."세계의 종말"];
                 const canvas = document.createElement('canvas');
@@ -80,7 +89,7 @@
                 const textTexture = new THREE.CanvasTexture(canvas);
                 textTexture.colorSpace = "srgb";
 
-                // Create the text material
+                // 텍스트 재질 생성
                 const material = new THREE.MeshBasicMaterial({
                     map: textTexture,
                     transparent: true,
@@ -88,13 +97,15 @@
                     side: THREE.DoubleSide
                 });
 
-                // Create the instanced mesh
+                // 인스턴스 메시 생성
                 const tileDim = 200;
                 const geometry = new THREE.PlaneGeometry(1, 1);
                 const instancedMesh = new THREE.InstancedMesh(geometry, material, tileDim * tileDim);
 
                 const dummy = new THREE.Object3D();
                 let index = 0;
+
+                const centerTextIndex = Math.floor(tileDim * tileDim / 2) + Math.floor(tileDim / 2);
 
                 for (let z = 0; z < tileDim; z++) {
                     for (let x = 0; x < tileDim; x++) {
@@ -112,19 +123,44 @@
 
                         instancedMesh.setMatrixAt(index, dummy.matrix);
 
-                        const colorVector = color === 'black' ? new THREE.Color(0x000000) : new THREE.Color(0x00ff00);
+                        const colorVector = color === 'black' ? new THREE.Color(0x000000) : new THREE.Color(0x0000ff);
                         instancedMesh.setColorAt(index, colorVector);
 
                         index++;
                     }
                 }
 
+                // 중앙 텍스트를 보라색으로 설정
+                const purpleColor = new THREE.Color(0x800080);
+                instancedMesh.setColorAt(centerTextIndex, purpleColor);
+                instancedMesh.instanceColor.needsUpdate = true; // 색상 업데이트 필요 플래그 설정
+                console.log(`Center text index set to purple: ${centerTextIndex}`);
+
+                // 클릭 이벤트 처리
+                document.addEventListener('click', (event) => {
+                    const mouse = new THREE.Vector2();
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                    const raycaster = new THREE.Raycaster();
+                    raycaster.setFromCamera(mouse, camera);
+
+                    const intersects = raycaster.intersectObject(instancedMesh);
+
+                    if (intersects.length > 0) {
+                        const instanceId = intersects[0].instanceId;
+                        console.log(`Intersected instance ID: ${instanceId}`);
+                        if (instanceId === centerTextIndex) {
+                            window.location.href = 'https://www.aespa.com';
+                        }
+                    }
+                });
+
                 instancedMesh.instanceMatrix.needsUpdate = true;
-                instancedMesh.instanceColor.needsUpdate = true;
 
                 scene.add(instancedMesh);
 
-                // Create controls
+                // 컨트롤 생성
                 const controls = new OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
 
@@ -141,6 +177,13 @@
                     camera.updateProjectionMatrix();
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
+
+                // 3초 후 알림을 띄우고 aespa.com으로 이동
+                setTimeout(() => {
+                    if (confirm('We are coming')) {
+                        window.location.href = 'https://www.aespa.com';
+                    }
+                }, 3000);
             });
     </script>
 </body>

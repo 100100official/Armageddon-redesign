@@ -218,7 +218,7 @@
     </div>
 
     <!-- Audio 요소 추가 -->
-    <audio id="background-music" src="supernova/Supernova_drum.mp3" preload="auto"></audio>
+    <audio id="background-music" src="src/aespa_2_page1.mp3" preload="auto"></audio>
 
 
     <script type="module">
@@ -394,7 +394,7 @@
                 startAutoCameraMovement() {
                     const movementSpeed = 0.0025;
                     let elapsedTime = 0;
-                    const duration = 5000;
+                    const duration = 6000;
                     const initialZ = 5;
                     const targetZ = 0;
 
@@ -428,9 +428,15 @@
                         document.getElementById('duplicate-svg').classList.remove('hidden');
                     }, 3000);
 
-                    document.addEventListener('dblclick', () => {
-                        window.location.href = 'page5distortion.html';
-                    });
+                    setTimeout(() => {
+                        this.enablePageTransition();
+                    }, 2000); // 2초 추가 대기 후 클릭 유도
+                }
+
+                enablePageTransition() {
+                    document.addEventListener('click', () => {
+                        window.location.href = 'index.html';
+                    }, { once: true });
                 }
 
                 render() {

@@ -19,5 +19,8 @@
   "homepage": "https://github.com/incheoncityboy/aespa_re#readme",
   "dependencies": {
     "three": "^0.165.0"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1"
   }
 }

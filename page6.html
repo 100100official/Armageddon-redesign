@@ -108,7 +108,7 @@
         // GO 버튼 클릭 이벤트
         goButton.addEventListener('click', () => {
             if (collectedLetters.every(letter => letter !== null)) {
-                window.location.href = 'page7.html'; // 다음 페이지 URL로 변경
+                window.location.href = 'page6_text.html'; // 다음 페이지 URL로 변경
             }
         });
 
@@ -129,6 +129,10 @@
             if (requiredLetters.includes(letter)) {
                 collectedLetters[index] = letter;
                 updateSlots();
+                // 다음 슬롯으로 포커스 이동
+                if (index < 9) {
+                    slotsContainer.children[index + 1].focus();
+                }
             } else {
                 event.target.value = '';
             }
@@ -322,7 +326,11 @@
                     while (positions.size < requiredLetters.length) {
                         let x = THREE.MathUtils.randInt(-20, 20);
                         let z = THREE.MathUtils.randInt(-20, 20);
-                        positions.add(`${x},${z}`);
+                        let position = `${x},${z}`;
+                        // 슬롯 영역을 피하도록 조건 추가
+                        if (x < -2 || x > 2 || z < -2 || z > 2) {
+                            positions.add(position);
+                        }
                     }
                     let positionArray = Array.from(positions);
 
@@ -344,7 +352,7 @@
         scene.fog = new THREE.Fog("#fff", 100, 150);
         scene.background = new THREE.Color("#fff");
         let camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 500);
-        camera.position.set(0, 3, 8).setLength(50);
+        camera.position.set(0, 3, 7.20).setLength(50);  // 카메라 Z 값을 7.20으로 설정
         let renderer = new THREE.WebGLRenderer({
             antialias: true
         });
