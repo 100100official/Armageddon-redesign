@@ -156,19 +156,6 @@
             display: none;
         }
 
-        /* 손전등 효과 추가 */
-        .flashlight {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 10%, transparent 50%);
-            pointer-events: none;
-            mix-blend-mode: screen;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-        }
     </style>
 </head>
 
@@ -233,8 +220,6 @@
     <!-- Audio 요소 추가 -->
     <audio id="background-music" src="supernova/Supernova_drum.mp3" preload="auto"></audio>
 
-    <!-- 손전등 효과 요소 추가 -->
-    <div class="flashlight" id="flashlight"></div>
 
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
@@ -251,7 +236,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('background-music');
-            const flashlight = document.getElementById('flashlight');
 
             // 페이지 로드 후 첫 클릭 시 음원 재생
             document.body.addEventListener('click', () => {
@@ -259,12 +243,6 @@
                     console.log('Audio playback failed:', error);
                 });
             }, { once: true });
-
-            // 손전등 효과
-            document.addEventListener('mousemove', (e) => {
-                flashlight.style.left = `${e.clientX}px`;
-                flashlight.style.top = `${e.clientY}px`;
-            });
 
             class App {
                 constructor({ canvas }) {
@@ -315,7 +293,7 @@
                     // Disable click action on the canvas
                     this.canvas.style.pointerEvents = 'none';
 
-                    this.typeMessage("can't stop hyperstellar", () => {
+                    this.typeMessage("CAN'T STOP HYPERSTELLAR", () => {
                         // Enable click action on the canvas after the message animation completes
                         this.canvas.style.pointerEvents = 'auto';
                     });
