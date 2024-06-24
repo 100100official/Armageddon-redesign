@@ -15,6 +15,189 @@
             left: 10px;
             margin-top: 5px;
         }
+
+        #toggle-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: url('src/toggle.png') no-repeat center center;
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px limegreen;
+            z-index: 1000;
+            outline: none;
+        }
+
+        #toggle-modal {
+            display: none; /* Ensure it's hidden initially */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background-color: #992500;
+            color: #B34927;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+        }
+
+        .intro-wrap {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-wrap .scanlines,
+        .intro-wrap .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .intro-wrap .noise {
+            z-index: 400;
+            opacity: .3;
+        }
+
+        .intro-wrap .noise:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://ice-creme.de/images/background-noise.png');
+            pointer-events: none;
+        }
+
+        .intro-wrap .noise-moving {
+            opacity: 1;
+            z-index: 450;
+        }
+
+        .intro-wrap .noise-moving:before {
+            will-change: background-position;
+            animation: noise 1s infinite alternate;
+        }
+
+        .intro-wrap .scanlines {
+            z-index: 300;
+            opacity: .2;
+            will-change: opacity;
+            animation: opacity 3s linear infinite;
+        }
+
+        .intro-wrap .scanlines:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
+            background-size: 100% 4px;
+            animation: scanlines .2s linear infinite;
+        }
+
+        .intro-wrap .play {
+            will-change: text-shadow;
+            animation: rgbText 2s steps(9) 0s infinite alternate;
+        }
+
+        .intro-wrap .play .char {
+            will-change: opacity;
+            animation: type 1.2s infinite alternate;
+            animation-delay: calc(60ms * var(--char-index));
+        }
+
+        .intro-wrap .time {
+            will-change: text-shadow;
+            animation: rgbText 1s steps(9) 0s infinite alternate;
+        }
+
+        .intro-wrap .recordSpeed {
+            will-change: text-shadow;
+            animation: rgbText 1s steps(9) 0s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes noise {
+            0%, 100% { background-position: 0 0; }
+            10% { background-position: -5% -10%; }
+            20% { background-position: -15% 5%; }
+            30% { background-position: 7% -25%; }
+            40% { background-position: 20% 25%; }
+            50% { background-position: -25% 10%; }
+            60% { background-position: 15% 5%; }
+            70% { background-position: 0 15%; }
+            80% { background-position: 25% 35%; }
+            90% { background-position: -10% 10%; }
+        }
+
+        @keyframes opacity {
+            0% { opacity: .6; }
+            20% { opacity: .3; }
+            35% { opacity: .5; }
+            50% { opacity: .8; }
+            60% { opacity: .4; }
+            80% { opacity: .7; }
+            100% { opacity: .6; }
+        }
+
+        @keyframes scanlines {
+            from {
+                background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
+                background-size: 100% 4px;
+            }
+            to {
+                background: linear-gradient(to bottom, rgba(0, 0, 0, .5) 50%, transparent 51%);
+                background-size: 100% 4px;
+            }
+        }
+
+        @keyframes rgbText {
+            0% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            25% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            45% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            50% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            55% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 3px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            90% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            100% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+        }
+
+        @keyframes type {
+            0%, 19% { opacity:0; }
+            20%, 100% { opacity:1; }
+        }
+
     </style>
     <script type="importmap">
         {
@@ -26,8 +209,21 @@
     </script>
 </head>
 <body>
-<!--    <button id="logCameraPosition">Log Camera Z Position</button>-->
     <button id="setCameraPosition">Set Camera Z Position</button>
+
+    <!-- Toggle Button -->
+    <button id="toggle-button"></button>
+    <!-- Toggle Modal -->
+    <div id="toggle-modal" class="intro-wrap">
+        <div class="scanlines"></div>
+        <div class="noise"></div>
+        <div class="noise noise-moving"></div>
+
+        <div class="play" data-splitting> You already know we are not alone. </div>
+        <div class="time">--:--</div>
+<!--        <div class="recordSpeed">SLP 0:00:00</div>-->
+    </div>
+
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -185,6 +381,19 @@
                     }
                 }, 3000);
             });
+
+        const toggleButton = document.getElementById('toggle-button');
+        const toggleModal = document.getElementById('toggle-modal');
+
+        toggleButton.style.display = 'block';
+
+        toggleButton.addEventListener('click', () => {
+            if (toggleModal.style.display === 'none') {
+                toggleModal.style.display = 'flex';
+            } else {
+                toggleModal.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

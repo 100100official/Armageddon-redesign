@@ -83,6 +83,7 @@
 <body>
     <div id="slots"></div>
     <div id="goButton" class="inactive">Verify</div>
+    <audio id="background-music" src="src/last_page_final.wav" preload="auto"></audio>
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -424,6 +425,15 @@
 
         // 첫 번째 글자 표시 시작
         showLetter(0);
+
+        // 음원 재생을 위한 이벤트 리스너 추가
+        document.body.addEventListener('click', () => {
+            const audio = document.getElementById('background-music');
+            audio.play().catch(error => {
+                console.log('Audio playback failed:', error);
+            });
+        }, { once: true }); // 한 번만 실행되도록 설정
+
     </script>
 </body>
 </html>
