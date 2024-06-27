@@ -333,6 +333,60 @@
             0%, 19% { opacity:0; }
             20%, 100% { opacity:1; }
         }
+
+        @media only screen and (max-width: 768px) {
+            #modal {
+                width: 90vw;
+            }
+
+            #frame {
+                width: 90vw; /* 모바일 화면에 맞게 너비 조정 */
+                height: 50vh; /* 높이 조정 */
+                top: 50%; /* 중앙에서 약간 위로 이동 */
+                left: 50%;
+            }
+
+            #code-black {
+                margin-top: 50px;
+            }
+
+            #combined-container {
+                bottom: 10px; /* 모바일 화면에서 아래쪽 간격 조정 */
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px; /* 내부 패딩 추가 */
+            }
+
+            #controls {
+
+                gap: 5px; /* 간격 조정 */
+            }
+
+            .control-button {
+                padding: 8px 20px; /* 버튼 크기 조정 */
+                font-size: 14px; /* 폰트 크기 조정 */
+            }
+
+            #observation-details {
+                font-size: 14px; /* 텍스트 크기 조정 */
+                margin-bottom: 5px; /* 간격 조정 */
+            }
+
+            #message {
+                font-size: 14px; /* 텍스트 크기 조정 */
+                margin-top: 5px; /* 간격 조정 */
+            }
+
+            #toggle-button {
+                width: 40px; /* 버튼 크기 조정 */
+                height: 40px; /* 버튼 크기 조정 */
+            }
+
+            #toggle-modal {
+                width: 90vw; /* 모바일 화면에 맞게 너비 조정 */
+                height: auto; /* 높이는 내용에 맞게 조정 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -347,6 +401,7 @@
             <button id="zoomIn" class="control-button">+</button>
             <button id="zoomOut" class="control-button">-</button>
             <button id="capture" class="control-button">Capture</button>
+            <button id="console" class="control-button">Console</button>
         </div>
         <div id="observation-details">Observation Date: N/A - Location: N/A</div>
         <div id="message"></div>
@@ -362,7 +417,6 @@
 
         <div class="play" data-splitting>Hello, this is your captain speaking </br> We have observed something in our space. </br> Find it, and make contact. </div>
         <div class="time">--:--</div>
-<!--        <div class="recordSpeed">SLP 0:00:00</div>-->
     </div>
 
     <!-- Modal -->
@@ -497,10 +551,12 @@
                     this.blueEarth.userData = { clickable: false };
                     this.canvas.addEventListener('click', this.onCanvasClick.bind(this));
 
-                    this.initPostProcessing();
+                    this.composer = new EffectComposer(this.renderer);
+                    this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-                    this.render();
+                    this.render(); // 렌더링 루프 시작
                 }
+
 
                 async createEarth(color, xPosition) {
                     const response = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@1/world/50m.json");
@@ -628,29 +684,6 @@
                     }
                 }
 
-                initPostProcessing() {
-                    const deps = { THREE, Pass, FullScreenQuad };
-                    const LensDistortionPass = LensDistortionPassGen(deps);
-                    this.lensDistortionPass = new LensDistortionPass({
-                        distortion: new THREE.Vector2(-1, -1),
-                        focalLength: new THREE.Vector2(2, 2),
-                        skew: 0,
-                        principalPoint: new THREE.Vector2(0, 0)
-                    });
-                    this.lensDistortionPass.enabled = false;
-                    const DualBloomPass = DualBloomPassGen(deps);
-                    this.dualBloomPass = new DualBloomPass({
-                        threshold: 0.1,
-                        blurriness: 4.0,
-                        intensity: 5
-                    });
-                    this.dualBloomPass.enabled = false;
-
-                    this.composer = new EffectComposer(this.renderer);
-                    this.composer.addPass(new RenderPass(this.scene, this.camera));
-                    this.composer.addPass(this.lensDistortionPass);
-                    this.composer.addPass(this.dualBloomPass);
-                }
 
                 render() {
                     requestAnimationFrame(() => this.render());
@@ -661,7 +694,7 @@
                         this.blueEarth.rotation.y += 0.01;
                     }
                     this.controls.update();
-                    this.composer.render();
+                    this.composer.render(); // 포스트 프로세싱을 포함한 렌더링
                 }
             }
 
