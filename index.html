@@ -408,8 +408,18 @@
 
             closeModal.addEventListener('click', () => {
                 modal.style.display = 'none';
+
+                // 배경 음악 재생 시작
                 audio.play().catch(error => {
                     console.log('Audio playback failed:', error);
+                });
+
+                // 배경 음악이 끝나면 다시 재생되도록 설정
+                audio.addEventListener('ended', () => {
+                    audio.currentTime = 0;
+                    audio.play().catch(error => {
+                        console.log('Audio playback failed:', error);
+                    });
                 });
 
                 // 요소 표시
@@ -581,7 +591,15 @@
 
                 addCaptureButton() {
                     const captureButton = document.getElementById('capture');
+                    const captureSoundSrc = 'src/capture.wav';
+
                     captureButton.addEventListener('click', () => {
+                        // 클릭 소리 재생
+                        const captureSound = new Audio(captureSoundSrc);
+                        captureSound.play().catch(error => {
+                            console.log('Audio playback failed:', error);
+                        });
+
                         console.log('Camera Zoom Level (Z Position):', this.camera.position.z);
                         if (this.camera.position.z >= 11) {
                             document.getElementById('observation-details').textContent = "CAPTURED";
@@ -592,6 +610,7 @@
                         }
                     });
                 }
+
 
                 onCanvasClick(event) {
                     if (this.blueEarth.userData.clickable) {
@@ -651,5 +670,6 @@
 
 
     </script>
+    <script src="script.js"></script>
 </body>
 </html>
