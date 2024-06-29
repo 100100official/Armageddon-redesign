@@ -20,7 +20,38 @@
             width: 80%;
         }
         .volume-controls input[type="range"] {
-            writing-mode: vertical-lr; /* Vertical */
+            -webkit-appearance: none;
+            appearance: none;
+            width: 8px;
+            height: 150px;
+            background: white;
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.2s;
+        }
+        .volume-controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: gray;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .volume-controls input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: gray;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .volume-controls input[type="range"]::-ms-track {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            background: transparent;
+            border-color: transparent;
+            color: transparent;
         }
 
         #toggle-button {
@@ -141,7 +172,7 @@
             animation: rgbText 1s steps(9) 0s infinite alternate;
         }
 
-                /* Animations */
+        /* Animations */
         @keyframes noise {
             0%, 100% { background-position: 0 0; }
             10% { background-position: -5% -10%; }
@@ -209,10 +240,10 @@
 </head>
 <body>
     <div class="volume-controls">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume1" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume2" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume3" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume4" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume1">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume2">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume3">
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume4">
     </div>
 
     <!-- Toggle Button -->
@@ -229,15 +260,16 @@
     </div>
 
     <script type="module">
-      import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-      import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
-      import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
-      import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
-      // import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+        import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
+        import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
 
         let scene, camera, renderer, plane, floor, pointLight, ambientLight, composer;
-        let drumVolumeControl, volumeControls;
+        let drumVolumeControl, volumeControls = [];
         let maxVolumeTimer;
+        let audioContext;
+        let isAudioPlaying = false;
 
         init();
         animate();
@@ -249,8 +281,8 @@
 
             // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(10, 40, 45); // 카메라를 적절한 위치로 설정
-            camera.lookAt(0, 20, 0); // 카메라가 원점을 바라보도록 설정
+            camera.position.set(10, 40, 45);
+            camera.lookAt(0, 20, 0);
 
             // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -261,16 +293,16 @@
             const planeGeometry = new THREE.PlaneGeometry(40, 40);
             const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
             plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.position.y = 20; // 바닥에서 떠있도록 설정
-            plane.rotation.x = Math.PI / 2; // 바닥에 평평하게 놓이도록 회전
+            plane.position.y = 20;
+            plane.rotation.x = Math.PI / 2;
             scene.add(plane);
 
             // Create the floor
             const floorGeometry = new THREE.PlaneGeometry(200, 200);
             const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
-            floor.position.y = 0; // 바닥의 위치를 y=0으로 설정
-            floor.rotation.x = Math.PI / 2; // 바닥이 평평하게 놓이도록 회전
+            floor.position.y = 0;
+            floor.rotation.x = Math.PI / 2;
             scene.add(floor);
 
             // Add lights
@@ -281,59 +313,8 @@
             pointLight.position.set(1, 1, 1).normalize();
             scene.add(pointLight);
 
-                    // 둥근 파티클 텍스처를 생성합니다.
-            function createCircleTexture() {
-                const size = 64; // 텍스처 크기
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const context = canvas.getContext('2d');
-
-                // 둥근 형태를 그립니다.
-                context.beginPath();
-                context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-                context.fillStyle = 'white';
-                context.fill();
-
-                // 텍스처로 변환합니다.
-                const texture = new THREE.Texture(canvas);
-                texture.needsUpdate = true;
-
-                return texture;
-            }
-
-            // 둥근 파티클 텍스처를 생성합니다.
-            const roundTexture = createCircleTexture();
-
             // Create stars
-            function createStars() {
-                const starGeometry = new THREE.BufferGeometry();
-                const starMaterial = new THREE.PointsMaterial({
-                    color: 0xffffff,
-                    size: 1, // 파티클 크기를 설정합니다.
-                    map: roundTexture, // 둥근 파티클 텍스처를 설정합니다.
-                    transparent: true, // 투명도를 활성화합니다.
-                    alphaTest: 0.5 // 알파 테스트를 설정하여 투명도를 처리합니다.
-                });
-
-                const starVertices = [];
-                for (let i = 0; i < 10000; i++) {
-                    const x = THREE.MathUtils.randFloatSpread(2000);
-                    const y = THREE.MathUtils.randFloatSpread(2000);
-                    const z = THREE.MathUtils.randFloatSpread(2000);
-                    starVertices.push(x, y, z);
-                }
-
-                starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-
-                const stars = new THREE.Points(starGeometry, starMaterial);
-                scene.add(stars);
-            }
-
-            // Call the createStars function
             createStars();
-
-
 
             // Post-processing for glow effect
             const renderScene = new RenderPass(scene, camera);
@@ -351,8 +332,40 @@
             // Handle window resize
             window.addEventListener('resize', onWindowResize, false);
 
+            // Initialize volume sliders
+            volumeControls = [
+                document.getElementById('volume1'),
+                document.getElementById('volume2'),
+                document.getElementById('volume3'),
+                document.getElementById('volume4')
+            ];
+
+            initializeVolumeSliders();
+
             // Audio setup
             setupAudio();
+
+            // Toggle button functionality
+            const toggleButton = document.getElementById('toggle-button');
+            const toggleModal = document.getElementById('toggle-modal');
+            toggleButton.style.display = 'block';
+
+            toggleButton.addEventListener('click', () => {
+                
+                    toggleModal.style.display = 'flex';
+                
+            });
+
+            toggleModal.addEventListener('click', () => {
+                if (isAudioPlaying) {
+                    toggleModal.style.display = 'none';
+                } else {
+                    toggleModal.style.display = 'none';
+                    startAudio();
+                }
+                // toggleModal.style.display = 'none';
+                // startAudio();
+            });
         }
 
         function onWindowResize() {
@@ -364,13 +377,13 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            plane.rotation.z += 0.01; // 판을 회전하도록 설정
+            plane.rotation.z += 0.01;
             composer.render();
 
             // Optional: Make stars twinkle
             scene.children.forEach(child => {
                 if (child instanceof THREE.Points) {
-                    child.rotation.y += 0.001; // 별들을 천천히 회전시켜 반짝이는 효과
+                    child.rotation.y += 0.001;
                 }
             });
         }
@@ -383,7 +396,6 @@
                 'supernova/Supernova_other_inst.mp3'
             ];
 
-            let audioContext;
             const audioElements = audioSources.map(src => {
                 const audio = new Audio(src);
                 audio.crossOrigin = "anonymous";
@@ -391,7 +403,7 @@
                 return audio;
             });
 
-            document.body.addEventListener('click', () => {
+            function startAudio() {
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -399,8 +411,12 @@
 
                     // Setup distortion and volume controls
                     setupDistortionAndVolume(audioContext, audioElements);
+                    isAudioPlaying = true;
                 }
-            }, { once: true });
+            }
+
+            // Attach startAudio to global scope for toggle button
+            window.startAudio = startAudio;
         }
 
         function setupDistortionAndVolume(audioContext, audioElements) {
@@ -431,20 +447,20 @@
                 const gainNode = audioContext.createGain();
                 const distortion = audioContext.createWaveShaper();
 
-                distortion.curve = createDistortionCurve(50); // 디스토션 강도 조절
-                distortion.oversample = '2x'; // 디스토션 오버샘플링 줄임
+                distortion.curve = createDistortionCurve(50);
+                distortion.oversample = '2x';
 
                 source.connect(gainNode);
                 gainNode.connect(distortion);
                 distortion.connect(audioContext.destination);
 
-                gainNode.gain.value = 0; // 초기 볼륨을 0으로 설정
+                gainNode.gain.value = 0.5;
 
                 gainNodes[index] = gainNode;
 
                 volumeControl.addEventListener('input', event => {
                     const volume = event.target.value;
-                    gainNode.gain.value = volume * 0.5; // 전체 최대 음량을 제한
+                    gainNode.gain.value = volume * 0.5;
                     if (volume > 0.8) {
                         gainNode.disconnect();
                         gainNode.connect(distortion);
@@ -453,7 +469,8 @@
                         gainNode.connect(audioContext.destination);
                     }
 
-                    checkVolumes(); // 볼륨 변경 시 볼륨 체크 함수 호출
+                    checkVolumes();
+                    updateVolumeSlider(volumeControl); // Update slider color on input change
                 });
             }
 
@@ -462,7 +479,6 @@
             setDistortion(audioElements[2], document.getElementById('volume3'), 2);
             setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
-            // 초기화 시 볼륨 체크
             checkVolumes();
         }
 
@@ -474,21 +490,59 @@
                 }, 4000);
             }
         }
-    </script>
 
-    <script>
-        const toggleButton = document.getElementById('toggle-button');
-        const toggleModal = document.getElementById('toggle-modal');
+        function updateVolumeSlider(volumeControl) {
+            const value = volumeControl.value * 100;
+            volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+        }
 
-        toggleButton.style.display = 'block';
+        function initializeVolumeSliders() {
+            volumeControls.forEach(volumeControl => {
+                updateVolumeSlider(volumeControl);
+            });
+        }
 
-        toggleButton.addEventListener('click', () => {
-            if (toggleModal.style.display === 'none') {
-                toggleModal.style.display = 'flex';
-            } else {
-                toggleModal.style.display = 'none';
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 1,
+                map: createCircleTexture(),
+                transparent: true,
+                alphaTest: 0.5
+            });
+
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = THREE.MathUtils.randFloatSpread(2000);
+                const y = THREE.MathUtils.randFloatSpread(2000);
+                const z = THREE.MathUtils.randFloatSpread(2000);
+                starVertices.push(x, y, z);
             }
-        });
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function createCircleTexture() {
+            const size = 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+
+            context.beginPath();
+            context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            context.fillStyle = 'white';
+            context.fill();
+
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+
+            return texture;
+        }
     </script>
 </body>
 </html>
