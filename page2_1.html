@@ -348,6 +348,19 @@
                 showPage4Content();
             }, { once: true });
 
+            let pressTimer;
+            const pressDuration = 500;
+
+            body.addEventListener('touchstart', (e) => {
+                pressTimer = setTimeout(() => {
+                    window.location.href = 'page5.html';
+                }, pressDuration);
+            });
+
+            body.addEventListener('touchend', (e) => {
+                clearTimeout(pressTimer);
+            });
+
             function showPage4Content() {
                 const audio = document.getElementById('background-music');
                 audio.play().catch(error => {
@@ -373,5 +386,6 @@
             }
         });
     </script>
+
 </body>
 </html>

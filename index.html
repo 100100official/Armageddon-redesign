@@ -335,6 +335,20 @@
             20%, 100% { opacity:1; }
         }
 
+        @media only screen and (max-width: 1440px) {
+            #combined-container {
+                bottom: 0px; /* 모바일 화면에서 아래쪽 간격 조정 */
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #frame {
+                border: 2px solid limegreen;
+            }
+
+
+        }
+
         @media only screen and (max-width: 768px) {
             #modal {
                 width: 90vw;
@@ -383,10 +397,6 @@
                 height: 40px; /* 버튼 크기 조정 */
             }
 
-            #toggle-modal {
-                width: 90vw; /* 모바일 화면에 맞게 너비 조정 */
-                height: auto; /* 높이는 내용에 맞게 조정 */
-            }
         }
     </style>
 </head>
@@ -402,7 +412,7 @@
             <button id="zoomIn" class="control-button">+</button>
             <button id="zoomOut" class="control-button">-</button>
             <button id="capture" class="control-button">Capture</button>
-            <button id="console" class="control-button">Console</button>
+<!--            <button id="console" class="control-button">Console</button>-->
         </div>
         <div id="observation-details">Observation Date: N/A - Location: N/A</div>
         <div id="message"></div>
@@ -557,7 +567,7 @@
 
                 this.addZoomControls();
                 this.addCaptureButton();
-                this.addConsoleButton(); // console 버튼 추가
+                /*this.addConsoleButton(); // console 버튼 추가*/
 
                 this.blueEarth.userData = { clickable: false };
 
@@ -677,13 +687,13 @@
                 });
             }
 
-            addConsoleButton() {
+            /*addConsoleButton() {
                 const consoleButton = document.getElementById('console');
 
                 consoleButton.addEventListener('click', () => {
                     console.log('Current Camera Z Position:', this.camera.position.z);
                 });
-            }
+            }*/
 
             onCanvasClick(event) {
                 console.log('Canvas clicked'); // 클릭 이벤트 디버깅 메시지
