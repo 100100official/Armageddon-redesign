@@ -281,10 +281,40 @@
             pointLight.position.set(1, 1, 1).normalize();
             scene.add(pointLight);
 
+                    // 둥근 파티클 텍스처를 생성합니다.
+            function createCircleTexture() {
+                const size = 64; // 텍스처 크기
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const context = canvas.getContext('2d');
+
+                // 둥근 형태를 그립니다.
+                context.beginPath();
+                context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                context.fillStyle = 'white';
+                context.fill();
+
+                // 텍스처로 변환합니다.
+                const texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+
+                return texture;
+            }
+
+            // 둥근 파티클 텍스처를 생성합니다.
+            const roundTexture = createCircleTexture();
+
             // Create stars
             function createStars() {
                 const starGeometry = new THREE.BufferGeometry();
-                const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+                const starMaterial = new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 1, // 파티클 크기를 설정합니다.
+                    map: roundTexture, // 둥근 파티클 텍스처를 설정합니다.
+                    transparent: true, // 투명도를 활성화합니다.
+                    alphaTest: 0.5 // 알파 테스트를 설정하여 투명도를 처리합니다.
+                });
 
                 const starVertices = [];
                 for (let i = 0; i < 10000; i++) {
@@ -302,6 +332,8 @@
 
             // Call the createStars function
             createStars();
+
+
 
             // Post-processing for glow effect
             const renderScene = new RenderPass(scene, camera);
