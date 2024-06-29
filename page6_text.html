@@ -9,6 +9,7 @@
             overflow: hidden;
             margin: 0;
         }
+
         #logCameraPosition, #setCameraPosition {
             position: absolute;
             top: 10px;
@@ -209,7 +210,7 @@
     </script>
 </head>
 <body>
-    <button id="setCameraPosition">Set Camera Z Position</button>
+<!--    <button id="setCameraPosition">Set Camera Z Position</button>-->
 
     <!-- Toggle Button -->
     <button id="toggle-button"></button>
@@ -253,7 +254,7 @@
 
                 // 카메라 생성
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const initialCameraZ = 7.20; // 초기 카메라 Z 값 설정
+                const initialCameraZ = 5; // 초기 카메라 Z 값 설정
                 camera.position.z = initialCameraZ;
 
                 // 렌더러 생성

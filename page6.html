@@ -70,6 +70,41 @@
             color: #000000;
             font-weight: bold;
         }
+
+        @media only screen and (max-width: 768px) {
+
+            body {
+                overflow: hidden;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+
+             #slots {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .slot, .inputSlot {
+                width: 25px;
+                height: 25px;
+                font-size: 16px;
+                margin: 2px;
+            }
+
+            #goButton {
+                width: 50px;
+                height: 25px;
+                font-size: 8px;
+                padding: 2px 5px;
+                margin: 2px;
+            }
+
+        }
+
+
     </style>
     <script type="importmap">
         {
