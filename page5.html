@@ -20,38 +20,7 @@
             width: 80%;
         }
         .volume-controls input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 8px;
-            height: 150px;
-            background: white;
-            border-radius: 5px;
-            outline: none;
-            transition: background 0.2s;
-        }
-        .volume-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: gray;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .volume-controls input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: gray;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .volume-controls input[type="range"]::-ms-track {
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
+            writing-mode: vertical-lr; /* Vertical */
         }
 
         #toggle-button {
@@ -172,7 +141,7 @@
             animation: rgbText 1s steps(9) 0s infinite alternate;
         }
 
-        /* Animations */
+                /* Animations */
         @keyframes noise {
             0%, 100% { background-position: 0 0; }
             10% { background-position: -5% -10%; }
@@ -235,15 +204,54 @@
             0%, 19% { opacity:0; }
             20%, 100% { opacity:1; }
         }
+        .volume-controls input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 8px;
+    height: 150px;
+    background: white;
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.volume-controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: gray;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-controls input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: gray;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-controls input[type="range"]::-ms-track {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+
 
     </style>
 </head>
 <body>
     <div class="volume-controls">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume1">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume2">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume3">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume4">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume1" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume2" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume3" style="writing-mode: vertical-lr;">
+        <input type="range" min="0" max="1" step="0.01" value="0" id="volume4" style="writing-mode: vertical-lr;">
     </div>
 
     <!-- Toggle Button -->
@@ -260,289 +268,276 @@
     </div>
 
     <script type="module">
-        import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-        import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+      import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
+      import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
+      import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
+      import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+      // import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+      let scene, camera, renderer, plane, floor, pointLight, ambientLight, composer;
+let drumVolumeControl, volumeControls = [];
+let maxVolumeTimer;
 
-        let scene, camera, renderer, plane, floor, pointLight, ambientLight, composer;
-        let drumVolumeControl, volumeControls = [];
-        let maxVolumeTimer;
-        let audioContext;
-        let isAudioPlaying = false;
+init();
+animate();
 
-        init();
-        animate();
+function init() {
+    // Scene setup code
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
 
-        function init() {
-            // Scene
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
+    // Camera setup code
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(10, 40, 45);
+    camera.lookAt(0, 20, 0);
 
-            // Camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(10, 40, 45);
-            camera.lookAt(0, 20, 0);
+    // Renderer setup code
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-            // Renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+    // Plane setup code
+    const planeGeometry = new THREE.PlaneGeometry(40, 40);
+    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+    plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.position.y = 20;
+    plane.rotation.x = Math.PI / 2;
+    scene.add(plane);
 
-            // Create the plane with glow effect
-            const planeGeometry = new THREE.PlaneGeometry(40, 40);
-            const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-            plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.position.y = 20;
-            plane.rotation.x = Math.PI / 2;
-            scene.add(plane);
+    // Floor setup code
+    const floorGeometry = new THREE.PlaneGeometry(200, 200);
+    const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+    floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.position.y = 0;
+    floor.rotation.x = Math.PI / 2;
+    scene.add(floor);
 
-            // Create the floor
-            const floorGeometry = new THREE.PlaneGeometry(200, 200);
-            const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
-            floor = new THREE.Mesh(floorGeometry, floorMaterial);
-            floor.position.y = 0;
-            floor.rotation.x = Math.PI / 2;
-            scene.add(floor);
+    // Lights setup code
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
-            // Add lights
-            ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-            scene.add(ambientLight);
+    pointLight = new THREE.DirectionalLight(0xffffff, 1);
+    pointLight.position.set(1, 1, 1).normalize();
+    scene.add(pointLight);
 
-            pointLight = new THREE.DirectionalLight(0xffffff, 1);
-            pointLight.position.set(1, 1, 1).normalize();
-            scene.add(pointLight);
+    // Stars setup code
+    createStars();
 
-            // Create stars
-            createStars();
+    // Post-processing setup code
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        0.6, // Strength
+        0.2, // Radius
+        0.1  // Threshold
+    );
 
-            // Post-processing for glow effect
-            const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(
-                new THREE.Vector2(window.innerWidth, window.innerHeight),
-                0.6,   // Strength
-                0.2,   // Radius
-                0.1    // Threshold
-            );
+    composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
 
-            composer = new EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
+    // Handle window resize
+    window.addEventListener('resize', onWindowResize, false);
 
-            // Handle window resize
-            window.addEventListener('resize', onWindowResize, false);
+    // Audio setup
+    setupAudio();
 
-            // Initialize volume sliders
-            volumeControls = [
-                document.getElementById('volume1'),
-                document.getElementById('volume2'),
-                document.getElementById('volume3'),
-                document.getElementById('volume4')
-            ];
+    // Initialize volume sliders
+    initializeVolumeSliders();
+}
 
-            initializeVolumeSliders();
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+}
 
-            // Audio setup
-            setupAudio();
+function animate() {
+    requestAnimationFrame(animate);
+    plane.rotation.z += 0.01;
+    composer.render();
 
-            // Toggle button functionality
-            const toggleButton = document.getElementById('toggle-button');
-            const toggleModal = document.getElementById('toggle-modal');
-            toggleButton.style.display = 'block';
-
-            toggleButton.addEventListener('click', () => {
-                
-                    toggleModal.style.display = 'flex';
-                
-            });
-
-            toggleModal.addEventListener('click', () => {
-                if (isAudioPlaying) {
-                    toggleModal.style.display = 'none';
-                } else {
-                    toggleModal.style.display = 'none';
-                    startAudio();
-                }
-                // toggleModal.style.display = 'none';
-                // startAudio();
-            });
+    // Optional: Make stars twinkle
+    scene.children.forEach(child => {
+        if (child instanceof THREE.Points) {
+            child.rotation.y += 0.001;
         }
+    });
+}
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
+function setupAudio() {
+    const audioSources = [
+        'supernova/Supernova_bass.mp3',
+        'supernova/Supernova_drum.mp3',
+        'supernova/Supernova_vocal.mp3',
+        'supernova/Supernova_other_inst.mp3'
+    ];
+
+    let audioContext;
+    const audioElements = audioSources.map(src => {
+        const audio = new Audio(src);
+        audio.crossOrigin = "anonymous";
+        audio.loop = true;
+        return audio;
+    });
+
+    document.body.addEventListener('click', () => {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            audioElements.forEach(audio => audio.play());
+
+            // Setup distortion and volume controls
+            setupDistortionAndVolume(audioContext, audioElements);
         }
+    }, { once: true });
+}
 
-        function animate() {
-            requestAnimationFrame(animate);
-            plane.rotation.z += 0.01;
-            composer.render();
+function setupDistortionAndVolume(audioContext, audioElements) {
+    const gainNodes = [];
+    const distortionNodes = [];
+    drumVolumeControl = document.getElementById('volume2');
+    volumeControls = [
+        document.getElementById('volume1'),
+        document.getElementById('volume2'),
+        document.getElementById('volume3'),
+        document.getElementById('volume4')
+    ];
 
-            // Optional: Make stars twinkle
-            scene.children.forEach(child => {
-                if (child instanceof THREE.Points) {
-                    child.rotation.y += 0.001;
-                }
-            });
+    function createDistortionCurve(amount) {
+        const k = typeof amount === 'number' ? amount : 50;
+        const n_samples = 44100;
+        const curve = new Float32Array(n_samples);
+        const deg = Math.PI / 180;
+        for (let i = 0; i < n_samples; ++i) {
+            const x = i * 2 / n_samples - 1;
+            curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
         }
+        return curve;
+    }
 
-        function setupAudio() {
-            const audioSources = [
-                'supernova/Supernova_bass.mp3',
-                'supernova/Supernova_drum.mp3',
-                'supernova/Supernova_vocal.mp3',
-                'supernova/Supernova_other_inst.mp3'
-            ];
+    function setDistortion(audioElement, volumeControl, index) {
+        const source = audioContext.createMediaElementSource(audioElement);
+        const gainNode = audioContext.createGain();
+        const distortion = audioContext.createWaveShaper();
 
-            const audioElements = audioSources.map(src => {
-                const audio = new Audio(src);
-                audio.crossOrigin = "anonymous";
-                audio.loop = true;
-                return audio;
-            });
+        distortion.curve = createDistortionCurve(50);
+        distortion.oversample = '2x';
 
-            function startAudio() {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        source.connect(gainNode);
+        gainNode.connect(distortion);
+        distortion.connect(audioContext.destination);
 
-                    audioElements.forEach(audio => audio.play());
+        gainNode.gain.value = 0;
 
-                    // Setup distortion and volume controls
-                    setupDistortionAndVolume(audioContext, audioElements);
-                    isAudioPlaying = true;
-                }
-            }
+        gainNodes[index] = gainNode;
 
-            // Attach startAudio to global scope for toggle button
-            window.startAudio = startAudio;
-        }
-
-        function setupDistortionAndVolume(audioContext, audioElements) {
-            const gainNodes = [];
-            const distortionNodes = [];
-            drumVolumeControl = document.getElementById('volume2');
-            volumeControls = [
-                document.getElementById('volume1'),
-                document.getElementById('volume2'),
-                document.getElementById('volume3'),
-                document.getElementById('volume4')
-            ];
-
-            function createDistortionCurve(amount) {
-                const k = typeof amount === 'number' ? amount : 50;
-                const n_samples = 44100;
-                const curve = new Float32Array(n_samples);
-                const deg = Math.PI / 180;
-                for (let i = 0; i < n_samples; ++i) {
-                    const x = i * 2 / n_samples - 1;
-                    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
-                }
-                return curve;
-            }
-
-            function setDistortion(audioElement, volumeControl, index) {
-                const source = audioContext.createMediaElementSource(audioElement);
-                const gainNode = audioContext.createGain();
-                const distortion = audioContext.createWaveShaper();
-
-                distortion.curve = createDistortionCurve(50);
-                distortion.oversample = '2x';
-
-                source.connect(gainNode);
+        volumeControl.addEventListener('input', event => {
+            const volume = event.target.value;
+            gainNode.gain.value = volume * 0.5;
+            if (volume > 0.8) {
+                gainNode.disconnect();
                 gainNode.connect(distortion);
-                distortion.connect(audioContext.destination);
-
-                gainNode.gain.value = 0.5;
-
-                gainNodes[index] = gainNode;
-
-                volumeControl.addEventListener('input', event => {
-                    const volume = event.target.value;
-                    gainNode.gain.value = volume * 0.5;
-                    if (volume > 0.8) {
-                        gainNode.disconnect();
-                        gainNode.connect(distortion);
-                    } else {
-                        gainNode.disconnect();
-                        gainNode.connect(audioContext.destination);
-                    }
-
-                    checkVolumes();
-                    updateVolumeSlider(volumeControl); // Update slider color on input change
-                });
+            } else {
+                gainNode.disconnect();
+                gainNode.connect(audioContext.destination);
             }
-
-            setDistortion(audioElements[0], document.getElementById('volume1'), 0);
-            setDistortion(audioElements[1], document.getElementById('volume2'), 1);
-            setDistortion(audioElements[2], document.getElementById('volume3'), 2);
-            setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
             checkVolumes();
-        }
+            updateVolumeSlider(volumeControl); // Update slider color on input change
+        });
+    }
 
-        function checkVolumes() {
-            clearTimeout(maxVolumeTimer);
-            if (volumeControls.every(control => control.value == 1)) {
-                maxVolumeTimer = setTimeout(() => {
-                    window.location.href = 'page6.html';
-                }, 4000);
+    setDistortion(audioElements[0], document.getElementById('volume1'), 0);
+    setDistortion(audioElements[1], document.getElementById('volume2'), 1);
+    setDistortion(audioElements[2], document.getElementById('volume3'), 2);
+    setDistortion(audioElements[3], document.getElementById('volume4'), 3);
+
+    checkVolumes();
+}
+
+function checkVolumes() {
+    clearTimeout(maxVolumeTimer);
+    if (volumeControls.every(control => control.value == 1)) {
+        maxVolumeTimer = setTimeout(() => {
+            window.location.href = 'page6.html';
+        }, 4000);
+    }
+}
+
+function updateVolumeSlider(volumeControl) {
+    const value = volumeControl.value * 100;
+    volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+}
+
+function initializeVolumeSliders() {
+    volumeControls.forEach(volumeControl => {
+        updateVolumeSlider(volumeControl);
+    });
+}
+
+// Stars creation code
+function createStars() {
+    const starGeometry = new THREE.BufferGeometry();
+    const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1,
+        map: createCircleTexture(),
+        transparent: true,
+        alphaTest: 0.5
+    });
+
+    const starVertices = [];
+    for (let i = 0; i < 10000; i++) {
+        const x = THREE.MathUtils.randFloatSpread(2000);
+        const y = THREE.MathUtils.randFloatSpread(2000);
+        const z = THREE.MathUtils.randFloatSpread(2000);
+        starVertices.push(x, y, z);
+    }
+
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
+}
+
+// Circle texture creation code
+function createCircleTexture() {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+
+    context.beginPath();
+    context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    context.fillStyle = 'white';
+    context.fill();
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    return texture;
+}
+
+    </script>
+
+    <script>
+        const toggleButton = document.getElementById('toggle-button');
+        const toggleModal = document.getElementById('toggle-modal');
+
+        toggleButton.style.display = 'block';
+
+        toggleButton.addEventListener('click', () => {
+            if (toggleModal.style.display === 'none') {
+                toggleModal.style.display = 'flex';
+            } else {
+                toggleModal.style.display = 'none';
             }
-        }
-
-        function updateVolumeSlider(volumeControl) {
-            const value = volumeControl.value * 100;
-            volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
-        }
-
-        function initializeVolumeSliders() {
-            volumeControls.forEach(volumeControl => {
-                updateVolumeSlider(volumeControl);
-            });
-        }
-
-        function createStars() {
-            const starGeometry = new THREE.BufferGeometry();
-            const starMaterial = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 1,
-                map: createCircleTexture(),
-                transparent: true,
-                alphaTest: 0.5
-            });
-
-            const starVertices = [];
-            for (let i = 0; i < 10000; i++) {
-                const x = THREE.MathUtils.randFloatSpread(2000);
-                const y = THREE.MathUtils.randFloatSpread(2000);
-                const z = THREE.MathUtils.randFloatSpread(2000);
-                starVertices.push(x, y, z);
-            }
-
-            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-
-            const stars = new THREE.Points(starGeometry, starMaterial);
-            scene.add(stars);
-        }
-
-        function createCircleTexture() {
-            const size = 64;
-            const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
-            const context = canvas.getContext('2d');
-
-            context.beginPath();
-            context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-            context.fillStyle = 'white';
-            context.fill();
-
-            const texture = new THREE.Texture(canvas);
-            texture.needsUpdate = true;
-
-            return texture;
-        }
+        });
+        toggleModal.addEventListener('click', () => {
+                toggleModal.style.display = 'none';
+        });
     </script>
 </body>
 </html>
