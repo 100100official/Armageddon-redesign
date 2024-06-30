@@ -5,8 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page 6</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Fonts 링크 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
 
     <style>
+        @font-face {
+            font-family: 'Nico Moji';
+            font-style: normal;
+            font-weight: 400;
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+                 url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+                 url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+                 url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+            }
+
+
         body {
             overflow: hidden;
             margin: 0;
@@ -39,8 +52,7 @@
             text-align: center;
         }
         #goButton {
-            width: 60px;
-            height: 30px;
+
             border: 1px solid #000;
             margin: 0 5px;
             display: flex;
@@ -49,11 +61,12 @@
             font-size: 10px;
             font-weight: bold;
             cursor: pointer;
-            padding: 3px 10px;
-            background-color: limegreen;
+            padding: 10px 15px; /* 버튼 내부 여백 */
+            background-color: #357CDC;
             border: none;
-            color: black;
-            font-family: 'Press Start 2P', cursive; /* 폰트 적용 */
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
+            border-radius: 5%; /* 둥근 원형 버튼 */
         }
 
         #goButton.active {
@@ -117,7 +130,7 @@
 </head>
 <body>
     <div id="slots"></div>
-    <div id="goButton" class="inactive">Verify</div>
+    <div id="goButton" class="inactive">VERIFY</div>
     <audio id="background-music" src="src/last_page_final.wav" preload="auto"></audio>
     <script type="module">
         import * as THREE from 'three';
