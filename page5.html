@@ -10,6 +10,7 @@
             overflow: hidden;
             background: black;
         }
+
         .volume-controls {
             position: absolute;
             bottom: 20px;
@@ -19,6 +20,7 @@
             justify-content: space-around;
             width: 80%;
         }
+
         .volume-controls input[type="range"] {
             writing-mode: vertical-lr; /* Vertical */
         }
@@ -55,6 +57,16 @@
             justify-content: center;
             text-align: center;
             font-family: 'VT323', monospace;
+            cursor: pointer;
+        }
+
+        #hint-toggle-button {
+            border-radius: 5%; /* 둥근 원형 버튼 */
+            margin-top: 20px; /* 위의 텍스트와 마진값 */
+            padding: 10px 15px; /* 버튼 내부 여백 */
+            background-color: #357CDC;
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
             cursor: pointer;
         }
 
@@ -141,7 +153,6 @@
             animation: rgbText 1s steps(9) 0s infinite alternate;
         }
 
-                /* Animations */
         @keyframes noise {
             0%, 100% { background-position: 0 0; }
             10% { background-position: -5% -10%; }
@@ -263,8 +274,13 @@
         <div class="noise noise-moving"></div>
 
         <div class="play" data-splitting> This is our message. </br> Turn all the sound knobs to maximum <br> 'I am a pacifist of this world.' </div>
-<!--        <div class="time">&#45;&#45;:&#45;&#45;</div>-->
-<!--        <div class="recordSpeed">SLP 0:00:00</div>-->
+
+        <button id="hint-toggle-button" class="control-button">HINT</button>
+        <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
+            모든 노브를 맥시멈 상태로 유지하고 카운트다운이 끝나면 페이지 전환이 가능합니다.
+        </div>
+
+
     </div>
 
     <script type="module">
