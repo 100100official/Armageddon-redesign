@@ -186,6 +186,17 @@
             text-align: center;
             font-family: 'VT323', monospace;
             cursor: pointer;
+            flex-direction: column;
+        }
+
+        #hint-toggle-button {
+            border-radius: 5%; /* 둥근 원형 버튼 */
+            margin-top: 20px; /* 위의 텍스트와 마진값 */
+            padding: 10px 15px; /* 버튼 내부 여백 */
+            background-color: #357CDC;
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
+            cursor: pointer;
         }
 
         .intro-wrap {
@@ -427,7 +438,11 @@
         <div class="noise noise-moving"></div>
 
         <div class="play" data-splitting>Hello, this is your captain speaking </br> We have observed something in our space. </br> Find it, and make contact. </div>
-        <div class="time">--:--</div>
+
+        <button id="hint-toggle-button" class="control-button">HINT</button>
+        <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
+            '-' 버튼으로 ZOOM OUT을 한 뒤 캡쳐 버튼을 누르고, 'CAPTURED' 표시가 뜨면 파란 지구가 클릭 가능합니다.
+        </div>
     </div>
 
     <!-- Modal -->
@@ -464,6 +479,8 @@
             const observationDetails = document.getElementById('observation-details');
             const toggleButton = document.getElementById('toggle-button');
             const toggleModal = document.getElementById('toggle-modal');
+            const hintToggleButton = document.getElementById('hint-toggle-button');
+            const hintText = document.getElementById('hint-text');
 
             // Ensure the modal is hidden initially
             toggleModal.style.display = 'none';
@@ -511,6 +528,15 @@
                     toggleModal.style.display = 'flex';
                 } else {
                     toggleModal.style.display = 'none';
+                }
+            });
+
+            hintToggleButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                if (hintText.style.display === 'none') {
+                    hintText.style.display = 'block';
+                } else {
+                    hintText.style.display = 'none';
                 }
             });
 
@@ -756,6 +782,7 @@
 
         new App({ canvas: document.querySelector("#scene") });
     </script>
+
     <script src="script.js"></script>
 </body>
 </html>
