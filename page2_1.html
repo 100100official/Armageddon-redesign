@@ -106,6 +106,17 @@
             text-align: center;
             font-family: 'VT323', monospace;
             cursor: pointer;
+            flex-direction: column;
+        }
+
+        #hint-toggle-button {
+            border-radius: 5%; /* 둥근 원형 버튼 */
+            margin-top: 30px; /* 위의 텍스트와 마진값 */
+            padding: 10px 15px; /* 버튼 내부 여백 */
+            background-color: #357CDC;
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
+            cursor: pointer;
         }
 
         .intro-wrap {
@@ -320,8 +331,11 @@
         <div class="noise noise-moving"></div>
 
         <div class="play" data-splitting> Almost there. <br> Double click when you're ready to take us at the very last.</div>
-        <div class="time">--:--</div>
-<!--        <div class="recordSpeed">SLP 0:00:00</div>-->
+
+        <button id="hint-toggle-button" class="control-button">HINT</button>
+        <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
+            'SUPERNOVA' 문구가 모두 표출된 이후 화면을 꾹 클릭(모바일), 혹은 더블 클릭(데스크탑)하면 페이지 전환이 가능합니다.
+        </div>
     </div>
 
     <!-- Audio 요소 추가 -->
@@ -333,6 +347,8 @@
             body.classList.remove('hidden');
             const toggleButton = document.getElementById('toggle-button');
             const toggleModal = document.getElementById('toggle-modal');
+            const hintToggleButton = document.getElementById('hint-toggle-button');
+            const hintText = document.getElementById('hint-text');
 
             toggleButton.style.display = 'block';
 
@@ -341,6 +357,15 @@
                     toggleModal.style.display = 'flex';
                 } else {
                     toggleModal.style.display = 'none';
+                }
+            });
+
+            hintToggleButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                if (hintText.style.display === 'none') {
+                    hintText.style.display = 'block';
+                } else {
+                    hintText.style.display = 'none';
                 }
             });
 
