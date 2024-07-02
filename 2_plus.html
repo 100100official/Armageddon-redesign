@@ -50,7 +50,6 @@
             margin-bottom: 10px;
             position: relative;
             overflow: hidden;
-
         }
 
         .content {
@@ -60,8 +59,8 @@
             column-count: 2;
             column-gap: 40px;
             margin-bottom: 10px;
-            margin-left: 20px; /* 왼쪽 여백 추가 */
-            padding-right: 20px; /* 우측 여백 추가 */
+            margin-left: 20px;
+            padding-right: 20px;
         }
 
         #second-image {
@@ -79,9 +78,9 @@
             width: 45%;
             font-size: 18px;
             line-height: 1.6;
-            text-align: left; /* 텍스트 왼쪽 정렬 */
-            padding-left: 20px; /* 좌측 여백 추가 */
-            padding-right: 20px; /* 우측 여백 추가 */
+            text-align: left;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         .clickable {
@@ -96,7 +95,6 @@
             left: 0;
         }
 
-        /* 페이퍼 느낌을 살리기 위한 추가 CSS */
         .newspaper {
             background: #fdfcf0;
             border: 1px solid #e0e0e0;
@@ -114,6 +112,16 @@
             height: 1px;
             background: #999;
             margin: 20px 0;
+        }
+
+        #log-coordinates-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -136,6 +144,7 @@
                 <p><span class="clickable" onclick="nextPage()">As the world</span> watches with bated breath, experts are working tirelessly to uncover the origins and potential implications of this extraordinary find. The future of space exploration and our understanding of life itself may be forever changed.</p>
             </div>
         </div>
+        <button id="log-coordinates-btn" onclick="logCameraCoordinates()">Log Camera Coordinates</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -160,7 +169,12 @@
             // Scene setup
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-            camera.position.z = 500;
+
+            // Set camera position (insert desired x, y, z values here)
+            camera.position.set(0, 0, 120); // x, y, z 값을 여기에 입력하세요
+
+            camera.zoom = 1; // 카메라 줌 값 고정
+            camera.updateProjectionMatrix();
 
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -220,6 +234,10 @@
 
                 const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true });
                 particles = new THREE.Points(geometry, material);
+
+                // Y축 위치 조정
+                particles.position.y += -80; // 원하는 Y축 위치로 조정
+
                 scene.add(particles);
 
                 // Add bloom effect
@@ -280,6 +298,11 @@
 
         function nextPage() {
             window.location.href = 'nextpage.html'; // 이동할 페이지 경로를 여기에 입력하세요
+        }
+
+        function logCameraCoordinates() {
+            const { x, y, z } = camera.position;
+            console.log(`Current camera coordinates - x: ${x}, y: ${y}, z: ${z}`);
         }
     </script>
 </body>
