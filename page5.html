@@ -30,13 +30,14 @@
             transition: background 0.2s;
             writing-mode: bt-lr; /* Vertical, bottom to top */
         }
+        
 
         .volume-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: gray;
+            background: rgb(128, 128, 128);
             cursor: pointer;
             border-radius: 50%;
         }
@@ -341,8 +342,6 @@ function init() {
     // Audio setup
     setupAudio();
 
-    // Initialize volume sliders
-    initializeVolumeSliders();
 }
 
 function onWindowResize() {
@@ -444,7 +443,7 @@ function setupDistortionAndVolume(audioContext, audioElements) {
             }
 
             checkVolumes();
-            updateVolumeSlider(volumeControl); // Update slider color on input change
+            // updateVolumeSlider(volumeControl); // Update slider color on input change
         });
     }
 
@@ -465,16 +464,17 @@ function checkVolumes() {
     }
 }
 
-function updateVolumeSlider(volumeControl) {
-    const value = volumeControl.value * 100;
-    volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
-}
+// 삭제 후보
+// function updateVolumeSlider(volumeControl) {
+//     const value = volumeControl.value * 100;
+//     volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+// }
 
-function initializeVolumeSliders() {
-    volumeControls.forEach(volumeControl => {
-        updateVolumeSlider(volumeControl);
-    });
-}
+// function initializeVolumeSliders() {
+//     volumeControls.forEach(volumeControl => {
+//         updateVolumeSlider(volumeControl);
+//     });
+// }
 
 // Stars creation code
 function createStars() {
