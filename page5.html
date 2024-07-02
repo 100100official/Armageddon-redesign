@@ -28,7 +28,7 @@
             border-radius: 5px;
             outline: none;
             transition: background 0.2s;
-            writing-mode: bt-lr; /* Vertical, bottom to top */
+            transform: rotate(180deg); /* Flip the slider */
         }
         
 
@@ -42,7 +42,7 @@
             border-radius: 50%;
         }
 
-        /* .volume-controls input[type="range"]::-moz-range-thumb {
+        .volume-controls input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
             background: gray;
@@ -57,7 +57,7 @@
             background: transparent;
             border-color: transparent;
             color: transparent;
-        } */
+        }
 
         #toggle-button {
             position: absolute;
@@ -341,6 +341,7 @@ function init() {
 
     // Audio setup
     setupAudio();
+    initializeVolumeSliders()
 
 }
 
@@ -443,7 +444,7 @@ function setupDistortionAndVolume(audioContext, audioElements) {
             }
 
             checkVolumes();
-            // updateVolumeSlider(volumeControl); // Update slider color on input change
+            updateVolumeSlider(volumeControl); // Update slider color on input change
         });
     }
 
@@ -453,6 +454,7 @@ function setupDistortionAndVolume(audioContext, audioElements) {
     setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
     checkVolumes();
+    
 }
 
 function checkVolumes() {
@@ -465,16 +467,16 @@ function checkVolumes() {
 }
 
 // 삭제 후보
-// function updateVolumeSlider(volumeControl) {
-//     const value = volumeControl.value * 100;
-//     volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
-// }
+function updateVolumeSlider(volumeControl) {
+    const value = volumeControl.value * 100;
+    volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+}
 
-// function initializeVolumeSliders() {
-//     volumeControls.forEach(volumeControl => {
-//         updateVolumeSlider(volumeControl);
-//     });
-// }
+function initializeVolumeSliders() {
+    volumeControls.forEach(volumeControl => {
+        updateVolumeSlider(volumeControl);
+    });
+}
 
 // Stars creation code
 function createStars() {
