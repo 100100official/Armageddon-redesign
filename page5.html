@@ -31,7 +31,6 @@
             transform: rotate(180deg); /* Flip the slider */
         }
         
-
         .volume-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -91,6 +90,26 @@
             justify-content: center;
             text-align: center;
             font-family: 'VT323', monospace;
+            cursor: pointer;
+        }
+
+        .countdown-modal {
+            display: none; /* Ensure it's hidden initially */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background-color: #000099;
+            color: #33CCFF;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'VT323', monospace;
+            font-size: 100px;
             cursor: pointer;
         }
 
@@ -263,9 +282,13 @@
         <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
             모든 노브를 맥시멈 상태로 유지하고 카운트다운이 끝나면 페이지 전환이 가능합니다.
         </div>
-
-
     </div>
+
+    <!-- Countdown Modals -->
+    <div id="countdown-modal-4" class="countdown-modal">4</div>
+    <div id="countdown-modal-3" class="countdown-modal">3</div>
+    <div id="countdown-modal-2" class="countdown-modal">2</div>
+    <div id="countdown-modal-1" class="countdown-modal">1</div>
 
     <script type="module">
       import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
@@ -459,17 +482,55 @@ function setupDistortionAndVolume(audioContext, audioElements) {
 function checkVolumes() {
     clearTimeout(maxVolumeTimer);
     if (volumeControls.every(control => control.value == 1)) {
-        maxVolumeTimer = setTimeout(() => {
-            window.location.href = 'page6.html';
-        }, 4000);
+        startCountdown();
+    } else {
+        resetCountdown();
     }
 }
 
-// 삭제 후보
+let countdownValue = 4;
+let countdownInterval;
+
+function startCountdown() {
+    resetCountdown(); // Ensure any previous countdown is cleared
+
+    function showModal(value) {
+        document.querySelector(`#countdown-modal-${value}`).style.display = 'flex';
+    }
+
+    function hideModal(value) {
+        document.querySelector(`#countdown-modal-${value}`).style.display = 'none';
+    }
+
+    function updateCountdown() {
+        hideModal(countdownValue);
+        countdownValue--;
+        if (countdownValue > 0) {
+            showModal(countdownValue);
+        } else {
+            window.location.href = 'page6.html';
+        }
+    }
+
+    countdownValue--; // Decrease countdownValue before showing the initial modal
+    showModal(countdownValue); // Show initial countdown modal after interval is set
+    countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+
+function resetCountdown() {
+    clearInterval(countdownInterval);
+    countdownValue = 5; // Set to 5 so that the first decrement sets it to 4
+    for (let i = 1; i <= 4; i++) {
+        document.querySelector(`#countdown-modal-${i}`).style.display = 'none';
+    }
+}
+
+
+
 function updateVolumeSlider(volumeControl) {
     const value = volumeControl.value * 100;
     volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
-    // volumeControl.style.background = `linear-gradient(to top, white ${value}%, gray ${value}%)`;
 }
 
 function initializeVolumeSliders() {
@@ -490,7 +551,7 @@ function createStars() {
     });
 
     const starVertices = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; 10000 > i; i++) {
         const x = THREE.MathUtils.randFloatSpread(2000);
         const y = THREE.MathUtils.randFloatSpread(2000);
         const z = THREE.MathUtils.randFloatSpread(2000);
