@@ -123,6 +123,49 @@
             cursor: pointer;
             font-size: 16px;
         }
+
+        @media screen and (max-width: 768px) {
+            .headline {
+                font-size: 24px;
+            }
+
+            .content {
+                font-size: 16px;
+                column-count: 1;
+                margin-left: 0;
+                padding-right: 0;
+            }
+
+            .right-column {
+                width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            #second-image {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #second-image img {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            }
+
+            @media screen and (max-width: 480px) {
+            .headline {
+                font-size: 20px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+
+            .right-column {
+                font-size: 14px;
+            }
+
     </style>
 
 </head>
@@ -171,11 +214,8 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
 
-            // Set camera position (insert desired x, y, z values here)
-            camera.position.set(0, 0, 120); // x, y, z 값을 여기에 입력하세요
-
-            camera.zoom = 1; // 카메라 줌 값 고정
-            camera.updateProjectionMatrix();
+            // Set initial camera position
+            setCameraPosition();
 
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -189,6 +229,28 @@
             loadParticleImage(imagePath, 'particle-container');
 
             window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function setCameraPosition() {
+            if (window.innerWidth <= 768) {
+                // Mobile view
+                camera.position.set(0, 0, 950); // 모바일 뷰에서의 카메라 위치
+                console.log(`Mobile view camera position: x=${camera.position.x}, y=${camera.position.y}, z=${camera.position.z}`);
+            } else {
+                // Desktop view
+                camera.position.set(0, 0, 120); // 데스크탑 뷰에서의 카메라 위치
+                console.log(`Desktop view camera position: x=${camera.position.x}, y=${camera.position.y}, z=${camera.position.z}`);
+            }
+            camera.updateProjectionMatrix();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            setCameraPosition();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) {
+                composer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
 
         function loadParticleImage(path, containerId) {
@@ -207,8 +269,9 @@
                 const colors = [];
                 const color = new THREE.Color();
 
-                const pixelSize = 0.5; // Pixel size를 줄여서 더 많은 파티클 생성
-                const pointSize = 0.5; // Point size를 줄여서 파티클 크기를 작게 설정
+                const isMobile = window.innerWidth <= 768;
+                const pixelSize = isMobile ? 1.0 : 0.5; // 모바일 뷰에서는 더 큰 pixelSize 사용
+                const pointSize = isMobile ? 1.0 : 0.5; // 모바일 뷰에서는 더 큰 pointSize 사용
 
                 for (let y = 0; y < imgHeight; y += pixelSize) {
                     for (let x = 0; x < imgWidth; x += pixelSize) {
@@ -244,9 +307,15 @@
                 // Add bloom effect
                 const renderScene = new THREE.RenderPass(scene, camera);
                 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.6, 0.1);
-                bloomPass.threshold = 0.2;
-                bloomPass.strength = 2.5;
-                bloomPass.radius = 1.0;
+                if (isMobile) {
+                    bloomPass.threshold = 0.3;
+                    bloomPass.strength = 2.0;
+                    bloomPass.radius = 0.5;
+                } else {
+                    bloomPass.threshold = 0.2;
+                    bloomPass.strength = 2.5;
+                    bloomPass.radius = 1.0;
+                }
 
                 composer = new THREE.EffectComposer(renderer);
                 composer.addPass(renderScene);
@@ -257,18 +326,6 @@
             container.appendChild(renderer.domElement);
         }
 
-
-        function loadStaticImage(path, containerId) {
-            const img = document.createElement('img');
-            img.src = path;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-
-            const container = document.getElementById(containerId);
-            container.appendChild(img);
-        }
-
         function getImageData(image) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -276,15 +333,6 @@
             canvas.height = image.height;
             context.drawImage(image, 0, 0);
             return context.getImageData(0, 0, image.width, image.height);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            if (composer) {
-                composer.setSize(window.innerWidth, window.innerHeight);
-            }
         }
 
         function animate() {
@@ -305,6 +353,8 @@
             const { x, y, z } = camera.position;
             console.log(`Current camera coordinates - x: ${x}, y: ${y}, z: ${z}`);
         }
+
+
     </script>
 </body>
 </html>
