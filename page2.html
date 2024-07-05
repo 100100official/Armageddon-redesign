@@ -110,12 +110,9 @@
     </style>
 </head>
 
-
 <body>
     <canvas id="scene"></canvas>
     <div id="message"></div>
-
-    <audio id="background-music" src="src/hyper.mp3" preload="auto"></audio>
 
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
@@ -185,19 +182,8 @@
                         this.canvas.style.pointerEvents = 'auto';
                     });
 
-                    // 첫 클릭 시 음원을 재생하도록 설정
-                    document.body.addEventListener('click', this.playAudio, { once: true });
-
                     this.render();
                 }
-
-                playAudio() {
-                    const audio = document.getElementById('background-music');
-                    audio.play().catch(error => {
-                        console.log('Audio playback failed:', error);
-                    });
-                }
-
 
                 typeMessage(message, callback) {
                     const messageElement = document.getElementById('message');
