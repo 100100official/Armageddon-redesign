@@ -199,6 +199,17 @@
             cursor: pointer;
         }
 
+        #close-toggle-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
         .intro-wrap {
             width: 100%;
             height: 100%;
@@ -434,7 +445,7 @@
         <div class="scanlines"></div>
         <div class="noise"></div>
         <div class="noise noise-moving"></div>
-
+        <button id="close-toggle-modal">&times;</button>
         <div class="play" data-splitting>Hello, this is your captain speaking </br> We have observed something in our space. </br> Find it, and make contact. </div>
 
         <button id="hint-toggle-button" class="control-button">HINT</button>
@@ -479,6 +490,7 @@
             const toggleModal = document.getElementById('toggle-modal');
             const hintToggleButton = document.getElementById('hint-toggle-button');
             const hintText = document.getElementById('hint-text');
+            const closeToggleModal = document.getElementById('close-toggle-modal');
 
             // Ensure the modal is hidden initially
             toggleModal.style.display = 'none';
@@ -540,6 +552,11 @@
 
             toggleModal.addEventListener('click', () => {
                 alert("Interactive message: 'Hello, this is the captain speaking'");
+            });
+
+            closeToggleModal.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                toggleModal.style.display = 'none';
             });
 
             const app = new App({ canvas: document.querySelector("#scene") });

@@ -3,604 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 5</title>
+    <title>Amazing News</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: black;
-        }
-        .volume-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            background: #f4f4f4;
+            font-family: 'Times New Roman', Times, serif;
             display: flex;
-            justify-content: space-around;
-            width: 80%;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .volume-controls input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 8px;
-            height: 150px;
+
+        .newspaper {
             background: white;
-            border-radius: 5px;
-            outline: none;
-            transition: background 0.2s;
-            transform: rotate(180deg); /* Flip the slider */
-        }
-        
-        .volume-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: rgb(128, 128, 128);
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .volume-controls input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: gray;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .volume-controls input[type="range"]::-ms-track {
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
-        }
-
-        #toggle-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: url('src/toggle.png') no-repeat center center;
-            background-size: cover;
-            width: 50px;
-            height: 50px;
-            border: none;
-            cursor: pointer;
-            border-radius: 50%;
-            box-shadow: 0 0 10px limegreen;
-            z-index: 1000;
-            outline: none;
-        }
-
-        #toggle-modal {
-            display: none; /* Ensure it's hidden initially */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background-color: #000099;
-            color: #33CCFF;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+            height: 90vh;
             text-align: center;
-            font-family: 'VT323', monospace;
-            cursor: pointer;
+            border: 1px solid #ddd;
+            overflow-y: auto;
         }
 
-        .countdown-modal {
-            display: none; /* Ensure it's hidden initially */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background-color: #000099;
-            color: #33CCFF;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-family: 'VT323', monospace;
-            font-size: 100px;
-            cursor: pointer;
+        .headline {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
-        .intro-wrap {
+        .divider {
             width: 100%;
-            height: 100%;
+            height: 2px;
+            background: black;
+            margin: 10px 0;
+        }
+
+        .news-image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: auto 1 / 1;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
             position: relative;
             overflow: hidden;
         }
 
-        .intro-wrap .scanlines,
-        .intro-wrap .noise {
+        .content {
+            font-size: 18px;
+            text-align: left;
+            line-height: 1.6;
+            column-count: 2;
+            column-gap: 40px;
+            margin-bottom: 10px;
+            margin-left: 20px;
+            padding-right: 20px;
+        }
+
+        #second-image {
+            display: flex;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        #second-image img {
+            width: 45%;
+            height: auto;
+        }
+
+        .right-column {
+            width: 45%;
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: left;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .clickable {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        canvas {
             position: absolute;
             top: 0;
             left: 0;
+        }
+
+        .newspaper {
+            background: #fdfcf0;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .headline {
+            font-family: 'Georgia', serif;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .divider {
             width: 100%;
-            height: 100%;
-            pointer-events: none;
+            height: 1px;
+            background: #999;
+            margin: 20px 0;
         }
 
-        .intro-wrap .noise {
-            z-index: 400;
-            opacity: .3;
-        }
-
-        .intro-wrap .noise:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('https://ice-creme.de/images/background-noise.png');
-            pointer-events: none;
-        }
-        .intro-wrap .noise-moving {
-            opacity: 1;
-            z-index: 450;
-        }
-
-        .intro-wrap .noise-moving:before {
-            will-change: background-position;
-            animation: noise 1s infinite alternate;
-        }
-
-        .intro-wrap .scanlines {
-            z-index: 300;
-            opacity: .2;
-            will-change: opacity;
-            animation: opacity 3s linear infinite;
-        }
-
-        .intro-wrap .scanlines:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
-            background-size: 100% 4px;
-            animation: scanlines .2s linear infinite;
-        }
-
-        .intro-wrap .play {
-            will-change: text-shadow;
-            animation: rgbText 2s steps(9) 0s infinite alternate;
-        }
-
-        .intro-wrap .play .char {
-            will-change: opacity;
-            animation: type 1.2s infinite alternate;
-            animation-delay: calc(60ms * var(--char-index));
-        }
-
-        .intro-wrap .time {
-            will-change: text-shadow;
-            animation: rgbText 1s steps(9) 0s infinite alternate;
-        }
-
-        .intro-wrap .recordSpeed {
-            will-change: text-shadow;
-            animation: rgbText 1s steps(9) 0s infinite alternate;
-        }
-
-                /* Animations */
-        @keyframes noise {
-            0%, 100% { background-position: 0 0; }
-            10% { background-position: -5% -10%; }
-            20% { background-position: -15% 5%; }
-            30% { background-position: 7% -25%; }
-            40% { background-position: 20% 25%; }
-            50% { background-position: -25% 10%; }
-            60% { background-position: 15% 5%; }
-            70% { background-position: 0 15%; }
-            80% { background-position: 25% 35%; }
-            90% { background-position: -10% 10%; }
-        }
-
-        @keyframes opacity {
-            0% { opacity: .6; }
-            20% { opacity: .3; }
-            35% { opacity: .5; }
-            50% { opacity: .8; }
-            60% { opacity: .4; }
-            80% { opacity: .7; }
-            100% { opacity: .6; }
-        }
-
-        @keyframes scanlines {
-            from {
-                background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
-                background-size: 100% 4px;
-            }
-            to {
-                background: linear-gradient(to bottom, rgba(0, 0, 0, .5) 50%, transparent 51%);
-                background-size: 100% 4px;
-            }
-        }
-
-        @keyframes rgbText {
-            0% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
-            }
-            25% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
-            }
-            45% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
-            }
-            50% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
-            }
-            55% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 3px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
-            }
-            90% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
-            }
-            100% {
-                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
-            }
-        }
-
-        @keyframes type {
-            0%, 19% { opacity:0; }
-            20%, 100% { opacity:1; }
+        #log-coordinates-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
+
 </head>
 <body>
-    <div class="volume-controls">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume1" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume2" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume3" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0" id="volume4" style="writing-mode: vertical-lr;">
-    </div>
-
-    <!-- Toggle Button -->
-    <button id="toggle-button"></button>
-    <!-- Toggle Modal -->
-    <div id="toggle-modal" class="intro-wrap">
-        <div class="scanlines"></div>
-        <div class="noise"></div>
-        <div class="noise noise-moving"></div>
-
-        <div class="play" data-splitting> This is our message. </br> Turn all the sound knobs to maximum <br> 'I am a pacifist of this world.' </div>
-
-        <button id="hint-toggle-button" class="control-button">HINT</button>
-        <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
-            모든 노브를 맥시멈 상태로 유지하고 카운트다운이 끝나면 페이지 전환이 가능합니다.
+    <div class="newspaper">
+        <div class="headline">BREAKING NEWS: </br> Do Aliens Really Exist?</div>
+        <div class="divider"></div>
+        <div id="particle-container" class="news-image"></div>
+        <div class="divider"></div>
+        <div class="content">
+            <p>In a shocking turn of events, an alien life form was discovered in the backyard of a suburban home. The alien, which appears to be friendly, has caused quite a stir among the residents.</p>
+            <p>Witnesses say that the alien, standing at about 3 feet tall, communicated through a series of lights and sounds. Scientists are currently examining the creature and have yet to determine its origin.</p>
+            <p>This discovery marks a historic moment in human history as it is the first confirmed sighting of extraterrestrial life on Earth. Stay tuned for more updates on this developing story.</p>
         </div>
+        <div id="second-image" class="news-second-image">
+            <img src="src/aespa_letter.png" alt="Second Image">
+            <div class="right-column">
+                <p>Scientists have long speculated about the existence of extraterrestrial life. This recent discovery has fueled the ongoing debate and opened new possibilities for space exploration.</p>
+                <p>The alien, found in a suburban backyard, has features unlike any known species on Earth. Its ability to communicate through lights and sounds suggests a level of intelligence that has stunned researchers.</p>
+                <p><span class="clickable" onclick="nextPage()">As the world</span> watches with bated breath, experts are working tirelessly to uncover the origins and potential implications of this extraordinary find. The future of space exploration and our understanding of life itself may be forever changed.</p>
+            </div>
+        </div>
+<!--        <button id="log-coordinates-btn" onclick="logCameraCoordinates()">Log Camera Coordinates</button>-->
     </div>
 
-    <!-- Countdown Modals -->
-    <div id="countdown-modal-4" class="countdown-modal" style="display: none;">4</div>
-    <div id="countdown-modal-3" class="countdown-modal" style="display: none;">3</div>
-    <div id="countdown-modal-2" class="countdown-modal" style="display: none;">2</div>
-    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">1</div>
-
-    <script type="module">
-      import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-      import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
-      import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
-      import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
-      // import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
-      let scene, camera, renderer, plane, floor, pointLight, ambientLight, composer;
-let drumVolumeControl, volumeControls = [];
-let maxVolumeTimer;
-
-init();
-animate();
-
-function init() {
-    // Scene setup code
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
-    // Camera setup code
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(10, 40, 45);
-    camera.lookAt(0, 20, 0);
-
-    // Renderer setup code
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // Plane setup code
-    const planeGeometry = new THREE.PlaneGeometry(40, 40);
-    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-    plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.position.y = 20;
-    plane.rotation.x = Math.PI / 2;
-    scene.add(plane);
-
-    // Floor setup code
-    const floorGeometry = new THREE.PlaneGeometry(200, 200);
-    const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
-    floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.position.y = 0;
-    floor.rotation.x = Math.PI / 2;
-    scene.add(floor);
-
-    // Lights setup code
-    ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    pointLight = new THREE.DirectionalLight(0xffffff, 1);
-    pointLight.position.set(1, 1, 1).normalize();
-    scene.add(pointLight);
-
-    // Stars setup code
-    createStars();
-
-    // Post-processing setup code
-    const renderScene = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.6, // Strength
-        0.2, // Radius
-        0.1  // Threshold
-    );
-
-    composer = new EffectComposer(renderer);
-    composer.addPass(renderScene);
-    composer.addPass(bloomPass);
-
-    // Handle window resize
-    window.addEventListener('resize', onWindowResize, false);
-
-    // Audio setup
-    setupAudio();
-    initializeVolumeSliders()
-
-}
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    plane.rotation.z += 0.01;
-    composer.render();
-
-    // Optional: Make stars twinkle
-    scene.children.forEach(child => {
-        if (child instanceof THREE.Points) {
-            child.rotation.y += 0.001;
-        }
-    });
-}
-
-function setupAudio() {
-    const audioSources = [
-        'supernova/Supernova_bass.mp3',
-        'supernova/Supernova_drum.mp3',
-        'supernova/Supernova_vocal.mp3',
-        'supernova/Supernova_other_inst.mp3'
-    ];
-
-    let audioContext;
-    const audioElements = audioSources.map(src => {
-        const audio = new Audio(src);
-        audio.crossOrigin = "anonymous";
-        audio.loop = true;
-        return audio;
-    });
-
-    document.body.addEventListener('click', () => {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-            audioElements.forEach(audio => audio.play());
-
-            // Setup distortion and volume controls
-            setupDistortionAndVolume(audioContext, audioElements);
-        }
-    }, { once: true });
-}
-
-function setupDistortionAndVolume(audioContext, audioElements) {
-    const gainNodes = [];
-    const distortionNodes = [];
-    drumVolumeControl = document.getElementById('volume2');
-    volumeControls = [
-        document.getElementById('volume1'),
-        document.getElementById('volume2'),
-        document.getElementById('volume3'),
-        document.getElementById('volume4')
-    ];
-
-    function createDistortionCurve(amount) {
-        const k = typeof amount === 'number' ? amount : 50;
-        const n_samples = 44100;
-        const curve = new Float32Array(n_samples);
-        const deg = Math.PI / 180;
-        for (let i = 0; i < n_samples; ++i) {
-            const x = i * 2 / n_samples - 1;
-            curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
-        }
-        return curve;
-    }
-
-    function setDistortion(audioElement, volumeControl, index) {
-        const source = audioContext.createMediaElementSource(audioElement);
-        const gainNode = audioContext.createGain();
-        const distortion = audioContext.createWaveShaper();
-
-        distortion.curve = createDistortionCurve(50);
-        distortion.oversample = '2x';
-
-        source.connect(gainNode);
-        gainNode.connect(distortion);
-        distortion.connect(audioContext.destination);
-
-        gainNode.gain.value = 0;
-
-        gainNodes[index] = gainNode;
-
-        volumeControl.addEventListener('input', event => {
-            const volume = event.target.value;
-            gainNode.gain.value = volume * 0.5;
-            if (volume > 0.8) {
-                gainNode.disconnect();
-                gainNode.connect(distortion);
-            } else {
-                gainNode.disconnect();
-                gainNode.connect(audioContext.destination);
-            }
-
-            checkVolumes();
-            updateVolumeSlider(volumeControl); // Update slider color on input change
-        });
-    }
-
-    setDistortion(audioElements[0], document.getElementById('volume1'), 0);
-    setDistortion(audioElements[1], document.getElementById('volume2'), 1);
-    setDistortion(audioElements[2], document.getElementById('volume3'), 2);
-    setDistortion(audioElements[3], document.getElementById('volume4'), 3);
-
-    checkVolumes();
-    
-}
-
-function checkVolumes() {
-    clearTimeout(maxVolumeTimer);
-    if (volumeControls.every(control => control.value == 1)) {
-        startCountdown();
-    } else {
-        resetCountdown();
-    }
-}
-
-let countdownValue = 4;
-let countdownInterval;
-
-function startCountdown() {
-    resetCountdown(); // Ensure any previous countdown is cleared
-
-    function showModal(value) {
-        document.querySelector(`#countdown-modal-${value}`).style.display = 'flex';
-    }
-
-    function hideModal(value) {
-        document.querySelector(`#countdown-modal-${value}`).style.display = 'none';
-    }
-
-    function updateCountdown() {
-        hideModal(countdownValue);
-        countdownValue--;
-        if (countdownValue > 0) {
-            showModal(countdownValue);
-        } else {
-            window.location.href = 'page6.html';
-        }
-    }
-
-    countdownValue--; // Decrease countdownValue before showing the initial modal
-    showModal(countdownValue); // Show initial countdown modal after interval is set
-    countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-
-function resetCountdown() {
-    clearInterval(countdownInterval);
-    countdownValue = 5; // Set to 5 so that the first decrement sets it to 4
-    for (let i = 1; i <= 4; i++) {
-        document.querySelector(`#countdown-modal-${i}`).style.display = 'none';
-    }
-}
-
-
-
-function updateVolumeSlider(volumeControl) {
-    const value = volumeControl.value * 100;
-    volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
-}
-
-function initializeVolumeSliders() {
-    volumeControls.forEach(volumeControl => {
-        updateVolumeSlider(volumeControl);
-    });
-}
-
-// Stars creation code
-function createStars() {
-    const starGeometry = new THREE.BufferGeometry();
-    const starMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 1,
-        map: createCircleTexture(),
-        transparent: true,
-        alphaTest: 0.5
-    });
-
-    const starVertices = [];
-    for (let i = 0; 10000 > i; i++) {
-        const x = THREE.MathUtils.randFloatSpread(2000);
-        const y = THREE.MathUtils.randFloatSpread(2000);
-        const z = THREE.MathUtils.randFloatSpread(2000);
-        starVertices.push(x, y, z);
-    }
-
-    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-
-    const stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
-}
-
-// Circle texture creation code
-function createCircleTexture() {
-    const size = 64;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const context = canvas.getContext('2d');
-
-    context.beginPath();
-    context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-    context.fillStyle = 'white';
-    context.fill();
-
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-
-    return texture;
-}
-
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
     <script>
-        const toggleButton = document.getElementById('toggle-button');
-        const toggleModal = document.getElementById('toggle-modal');
+        let scene, camera, renderer, controls, composer, particles;
 
-        toggleButton.style.display = 'block';
+        const imagePath = 'src/aespa_super_src.jpg'; // 첫 번째 이미지 경로를 여기에 입력하세요
+        const secondImagePath = 'src/aespa_letter.png'; // 두 번째 이미지 경로를 여기에 입력하세요
 
-        toggleButton.addEventListener('click', () => {
-            if (toggleModal.style.display === 'none') {
-                toggleModal.style.display = 'flex';
-            } else {
-                toggleModal.style.display = 'none';
+        init();
+        animate();
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+
+            // Set camera position (insert desired x, y, z values here)
+            camera.position.set(0, 0, 120); // x, y, z 값을 여기에 입력하세요
+
+            camera.zoom = 1; // 카메라 줌 값 고정
+            camera.updateProjectionMatrix();
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.domElement.style.width = '100%';
+            renderer.domElement.style.height = '100%';
+            document.getElementById('particle-container').appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            // Load image and create particles
+            loadParticleImage(imagePath, 'particle-container');
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function loadParticleImage(path, containerId) {
+            const loader = new THREE.TextureLoader();
+            loader.load(path, function(texture) {
+                const imgWidth = texture.image.width;
+                const imgHeight = texture.image.height;
+                const imgData = getImageData(texture.image);
+
+                const aspectRatio = imgWidth / imgHeight;
+                const container = document.getElementById(containerId);
+                container.style.aspectRatio = `${imgWidth} / ${imgHeight}`;
+
+                const geometry = new THREE.BufferGeometry();
+                const vertices = [];
+                const colors = [];
+                const color = new THREE.Color();
+
+                const pixelSize = 0.5; // Pixel size를 줄여서 더 많은 파티클 생성
+                const pointSize = 0.5; // Point size를 줄여서 파티클 크기를 작게 설정
+
+                for (let y = 0; y < imgHeight; y += pixelSize) {
+                    for (let x = 0; x < imgWidth; x += pixelSize) {
+                        const index = (y * imgWidth + x) * 4;
+                        const r = imgData.data[index];
+                        const g = imgData.data[index + 1];
+                        const b = imgData.data[index + 2];
+                        const a = imgData.data[index + 3];
+
+                        if (a > 128) { // Transparency threshold
+                            const vx = (x - imgWidth / 2) * pixelSize;
+                            const vy = -(y - imgHeight / 2) * pixelSize;
+                            const vz = 0;
+                            vertices.push(vx, vy, vz);
+
+                            color.setRGB(r / 255, g / 255, b / 255);
+                            colors.push(color.r, color.g, color.b);
+                        }
+                    }
+                }
+
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+                const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true });
+                particles = new THREE.Points(geometry, material);
+
+                // Y축 위치 조정
+                particles.position.y += -80; // 원하는 Y축 위치로 조정
+
+                scene.add(particles);
+
+                // Add bloom effect
+                const renderScene = new THREE.RenderPass(scene, camera);
+                const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.6, 0.1);
+                bloomPass.threshold = 0.2;
+                bloomPass.strength = 2.5;
+                bloomPass.radius = 1.0;
+
+                composer = new THREE.EffectComposer(renderer);
+                composer.addPass(renderScene);
+                composer.addPass(bloomPass);
+            });
+
+            const container = document.getElementById(containerId);
+            container.appendChild(renderer.domElement);
+        }
+
+
+        function loadStaticImage(path, containerId) {
+            const img = document.createElement('img');
+            img.src = path;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+
+            const container = document.getElementById(containerId);
+            container.appendChild(img);
+        }
+
+        function getImageData(image) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0);
+            return context.getImageData(0, 0, image.width, image.height);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) {
+                composer.setSize(window.innerWidth, window.innerHeight);
             }
-        });
-        toggleModal.addEventListener('click', () => {
-                toggleModal.style.display = 'none';
-        });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if (composer) {
+                composer.render();
+            } else {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function nextPage() {
+            window.location.href = 'page6.html'; // 이동할 페이지 경로를 여기에 입력하세요
+        }
+
+        function logCameraCoordinates() {
+            const { x, y, z } = camera.position;
+            console.log(`Current camera coordinates - x: ${x}, y: ${y}, z: ${z}`);
+        }
     </script>
 </body>
 </html>
