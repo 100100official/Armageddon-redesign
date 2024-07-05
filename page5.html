@@ -28,20 +28,21 @@
             border-radius: 5px;
             outline: none;
             transition: background 0.2s;
-            writing-mode: bt-lr; /* Vertical, bottom to top */
+            transform: rotate(180deg); /* Flip the slider */
         }
+
 
         .volume-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: gray;
+            background: rgb(128, 128, 128);
             cursor: pointer;
             border-radius: 50%;
         }
 
-        /* .volume-controls input[type="range"]::-moz-range-thumb {
+        .volume-controls input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
             background: gray;
@@ -56,7 +57,7 @@
             background: transparent;
             border-color: transparent;
             color: transparent;
-        } */
+        }
 
         #toggle-button {
             position: absolute;
@@ -339,9 +340,8 @@ function init() {
 
     // Audio setup
     setupAudio();
+    initializeVolumeSliders()
 
-    // Initialize volume sliders
-    initializeVolumeSliders();
 }
 
 function onWindowResize() {
@@ -453,17 +453,19 @@ function setupDistortionAndVolume(audioContext, audioElements) {
     setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
     checkVolumes();
+
 }
 
 function checkVolumes() {
     clearTimeout(maxVolumeTimer);
     if (volumeControls.every(control => control.value == 1)) {
         maxVolumeTimer = setTimeout(() => {
-            window.location.href = 'page6.html';
+            window.location.href = '2_plus.html';
         }, 4000);
     }
 }
 
+// 삭제 후보
 function updateVolumeSlider(volumeControl) {
     const value = volumeControl.value * 100;
     volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
