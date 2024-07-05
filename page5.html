@@ -10,7 +10,6 @@
             overflow: hidden;
             background: black;
         }
-
         .volume-controls {
             position: absolute;
             bottom: 20px;
@@ -20,9 +19,43 @@
             justify-content: space-around;
             width: 80%;
         }
-
         .volume-controls input[type="range"] {
-            writing-mode: vertical-lr; /* Vertical */
+            -webkit-appearance: none;
+            appearance: none;
+            width: 8px;
+            height: 150px;
+            background: white;
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.2s;
+            transform: rotate(180deg); /* Flip the slider */
+        }
+        
+        .volume-controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: rgb(128, 128, 128);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .volume-controls input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: gray;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .volume-controls input[type="range"]::-ms-track {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            background: transparent;
+            border-color: transparent;
+            color: transparent;
         }
 
         #toggle-button {
@@ -60,13 +93,23 @@
             cursor: pointer;
         }
 
-        #hint-toggle-button {
-            border-radius: 5%; /* 둥근 원형 버튼 */
-            margin-top: 20px; /* 위의 텍스트와 마진값 */
-            padding: 10px 15px; /* 버튼 내부 여백 */
-            background-color: #357CDC;
-            color: white;
-            font-family: 'Nico Moji', sans-serif;
+        .countdown-modal {
+            display: none; /* Ensure it's hidden initially */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background-color: #000099;
+            color: #33CCFF;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'VT323', monospace;
+            font-size: 100px;
             cursor: pointer;
         }
 
@@ -102,7 +145,6 @@
             background: url('https://ice-creme.de/images/background-noise.png');
             pointer-events: none;
         }
-
         .intro-wrap .noise-moving {
             opacity: 1;
             z-index: 450;
@@ -153,6 +195,7 @@
             animation: rgbText 1s steps(9) 0s infinite alternate;
         }
 
+                /* Animations */
         @keyframes noise {
             0%, 100% { background-position: 0 0; }
             10% { background-position: -5% -10%; }
@@ -215,46 +258,6 @@
             0%, 19% { opacity:0; }
             20%, 100% { opacity:1; }
         }
-        .volume-controls input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 8px;
-    height: 150px;
-    background: white;
-    border-radius: 5px;
-    outline: none;
-    transition: background 0.2s;
-}
-
-.volume-controls input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: gray;
-    cursor: pointer;
-    border-radius: 50%;
-}
-
-.volume-controls input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: gray;
-    cursor: pointer;
-    border-radius: 50%;
-}
-
-.volume-controls input[type="range"]::-ms-track {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
-}
-
-
-
     </style>
 </head>
 <body>
@@ -279,9 +282,13 @@
         <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
             모든 노브를 맥시멈 상태로 유지하고 카운트다운이 끝나면 페이지 전환이 가능합니다.
         </div>
-
-
     </div>
+
+    <!-- Countdown Modals -->
+    <div id="countdown-modal-4" class="countdown-modal" style="display: none;">4</div>
+    <div id="countdown-modal-3" class="countdown-modal" style="display: none;">3</div>
+    <div id="countdown-modal-2" class="countdown-modal" style="display: none;">2</div>
+    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">1</div>
 
     <script type="module">
       import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
@@ -356,9 +363,8 @@ function init() {
 
     // Audio setup
     setupAudio();
+    initializeVolumeSliders()
 
-    // Initialize volume sliders
-    initializeVolumeSliders();
 }
 
 function onWindowResize() {
@@ -470,16 +476,57 @@ function setupDistortionAndVolume(audioContext, audioElements) {
     setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
     checkVolumes();
+    
 }
 
 function checkVolumes() {
     clearTimeout(maxVolumeTimer);
     if (volumeControls.every(control => control.value == 1)) {
-        maxVolumeTimer = setTimeout(() => {
-            window.location.href = 'particle_test.html';
-        }, 4000);
+        startCountdown();
+    } else {
+        resetCountdown();
     }
 }
+
+let countdownValue = 4;
+let countdownInterval;
+
+function startCountdown() {
+    resetCountdown(); // Ensure any previous countdown is cleared
+
+    function showModal(value) {
+        document.querySelector(`#countdown-modal-${value}`).style.display = 'flex';
+    }
+
+    function hideModal(value) {
+        document.querySelector(`#countdown-modal-${value}`).style.display = 'none';
+    }
+
+    function updateCountdown() {
+        hideModal(countdownValue);
+        countdownValue--;
+        if (countdownValue > 0) {
+            showModal(countdownValue);
+        } else {
+            window.location.href = 'page6.html';
+        }
+    }
+
+    countdownValue--; // Decrease countdownValue before showing the initial modal
+    showModal(countdownValue); // Show initial countdown modal after interval is set
+    countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+
+function resetCountdown() {
+    clearInterval(countdownInterval);
+    countdownValue = 5; // Set to 5 so that the first decrement sets it to 4
+    for (let i = 1; i <= 4; i++) {
+        document.querySelector(`#countdown-modal-${i}`).style.display = 'none';
+    }
+}
+
+
 
 function updateVolumeSlider(volumeControl) {
     const value = volumeControl.value * 100;
@@ -504,7 +551,7 @@ function createStars() {
     });
 
     const starVertices = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; 10000 > i; i++) {
         const x = THREE.MathUtils.randFloatSpread(2000);
         const y = THREE.MathUtils.randFloatSpread(2000);
         const z = THREE.MathUtils.randFloatSpread(2000);
