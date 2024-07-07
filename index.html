@@ -10,14 +10,14 @@
 
     <style>
         @font-face {
-        font-family: 'Nico Moji';
-        font-style: normal;
-        font-weight: 400;
-        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
-        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+            font-family: 'Nico Moji';
+            font-style: normal;
+            font-weight: 400;
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
         }
 
         @keyframes blink {
@@ -133,7 +133,7 @@
             cursor: pointer;
             border-radius: 3px;
             font-family: 'Nico Moji', sans-serif;
-            user-select: none;
+            user-select: none; /* 텍스트 선택 방지 */
         }
 
         .control-button:active {
@@ -393,7 +393,6 @@
             }
 
             #controls {
-
                 gap: 5px; /* 간격 조정 */
             }
 
@@ -417,7 +416,6 @@
                 height: 40px; /* 버튼 크기 조정 */
             }
         }
-
     </style>
 </head>
 <body>
@@ -432,7 +430,7 @@
             <button id="zoomIn" class="control-button">+</button>
             <button id="zoomOut" class="control-button">-</button>
             <button id="capture" class="control-button">Capture</button>
-<!--            <button id="console" class="control-button">Console</button>-->
+            <!-- <button id="console" class="control-button">Console</button> -->
         </div>
         <div id="observation-details">Observation Date: N/A - Location: N/A</div>
         <div id="message"></div>
@@ -467,9 +465,9 @@
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
         import {
-          EffectComposer,
-          Pass,
-          FullScreenQuad
+            EffectComposer,
+            Pass,
+            FullScreenQuad
         } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
         import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
         import { LensDistortionPassGen } from 'https://cdn.jsdelivr.net/gh/ycw/three-lens-distortion@1.0.0/src/index.js';
@@ -678,8 +676,9 @@
                 };
 
                 const startZoomOut = () => {
+                    const zoomSpeed = this.isMobile ? 0.2 : 0.1; // 모바일에서 2배 빠르게
                     zoomOutInterval = setInterval(() => {
-                        this.camera.position.z += 0.1;
+                        this.camera.position.z += zoomSpeed;
                         this.controls.update();
                     }, 16);
                 };
