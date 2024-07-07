@@ -150,6 +150,7 @@
             slot.classList.add('inputSlot');
             slot.maxLength = 1;
             slot.addEventListener('input', (event) => handleInput(event, i));
+            slot.addEventListener('keydown', (event) => handleBackspace(event, i));
             slotsContainer.appendChild(slot);
         }
 
@@ -183,6 +184,17 @@
                 }
             } else {
                 event.target.value = '';
+            }
+        }
+
+        function handleBackspace(event, index) {
+            if (event.key === 'Backspace' && collectedLetters[index] === null && index > 0) {
+                collectedLetters[index - 1] = null;
+                updateSlots();
+                slotsContainer.children[index - 1].focus();
+            } else if (event.key === 'Backspace') {
+                collectedLetters[index] = null;
+                updateSlots();
             }
         }
 
