@@ -114,7 +114,7 @@
             left: 50%;
             width: 300px;
             height: 300px;
-            background-color: #000099;
+            background-color: transparent;
             color: #33CCFF;
             transform: translate(-50%, -50%);
             z-index: 1000;
@@ -125,6 +125,26 @@
             font-family: 'VT323', monospace;
             font-size: 100px;
             cursor: pointer;
+        }
+        .countdown-text {
+            font-size: 100px;
+            color: rgb(0, 0, 0);
+            animation: distort 0.3s infinite alternate;
+        }
+
+        @keyframes distort {
+            0% {
+                filter: none;
+                transform: scale(1);
+            }
+            50% {
+                filter: blur(2px) brightness(1.2);
+                transform: scale(1.05);
+            }
+            100% {
+                filter: none;
+                transform: scale(1);
+            }
         }
         .intro-wrap {
             width: 100%;
@@ -283,11 +303,22 @@
     </div>
 
     <!-- Countdown Modals -->
-    <div id="countdown-modal-4" class="countdown-modal" style="display: none;">4</div>
+    <!-- <div id="countdown-modal-4" class="countdown-modal" style="display: none;">4</div>
     <div id="countdown-modal-3" class="countdown-modal" style="display: none;">3</div>
     <div id="countdown-modal-2" class="countdown-modal" style="display: none;">2</div>
-    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">1</div>
-
+    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">1</div> -->
+    <div id="countdown-modal-4" class="countdown-modal" style="display: none;">
+        <span class="countdown-text" id="countdown-text-4" style="font-family: 'Nico Moji';">4</span>
+    </div>
+    <div id="countdown-modal-3" class="countdown-modal" style="display: none;">
+        <span class="countdown-text" id="countdown-text-3" style="font-family: 'Nico Moji';">3</span>
+    </div>
+    <div id="countdown-modal-2" class="countdown-modal" style="display: none;">
+        <span class="countdown-text" id="countdown-text-2" style="font-family: 'Nico Moji';">2</span>
+    </div>
+    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">
+        <span class="countdown-text" id="countdown-text-1" style="font-family: 'Nico Moji';">1</span>
+    </div>
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
