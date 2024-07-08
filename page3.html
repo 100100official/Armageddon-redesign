@@ -276,6 +276,14 @@
             0%, 19% { opacity:0; }
             20%, 100% { opacity:1; }
         }
+
+        @media only screen and (max-width: 768px) {
+            #toggle-button {
+                width: 30px; /* 버튼 크기 조정 */
+                height: 30px; /* 버튼 크기 조정 */
+            }
+        }
+
     </style>
 </head>
 
@@ -389,22 +397,27 @@
             });
 
             body.addEventListener('click', () => {
-                showPage4Content();
+                if (toggleModal.style.display === 'none') {
+                    showPage4Content();
+                }
             }, { once: true });
 
             body.addEventListener('touchstart', () => {
-                showPage4Content();
+                if (toggleModal.style.display === 'none') {
+                    showPage4Content();
+                }
             }, { once: true });
 
             let pressTimer;
             const pressDuration = 500;
 
             body.addEventListener('touchstart', (e) => {
-                pressTimer = setTimeout(() => {
-                    window.location.href = 'page4.html';
-                }, pressDuration);
+                if (toggleModal.style.display === 'none') {
+                    pressTimer = setTimeout(() => {
+                        window.location.href = 'page4.html';
+                    }, pressDuration);
+                }
             });
-
             body.addEventListener('touchend', (e) => {
                 clearTimeout(pressTimer);
             });
