@@ -96,16 +96,22 @@
                 align-items: center;
             }
 
-             #slots {
-                flex-wrap: wrap;
+            #slots {
+                display: flex;
+                flex-wrap: nowrap; /* 줄바꿈을 하지 않도록 설정 */
                 justify-content: center;
+                width: 100%; /* 슬라이더가 부모 요소를 넘지 않도록 설정 */
+                max-width: 90%; /* 부모 요소보다 살짝 작게 설정 */
             }
 
             .slot, .inputSlot {
-                width: 20px;
-                height: 20px;
+                width: 20px; /* 기본 너비 설정 */
+                height: 20px; /* 기본 높이 설정 */
                 font-size: 16px;
                 margin: 2px;
+                flex-basis: 20px; /* 기본 크기를 설정 */
+                max-width: 20px; /* 최대 크기를 설정 */
+                min-width: 10px; /* 최소 크기 설정 */
             }
 
             #goButton {
@@ -114,6 +120,10 @@
                 font-size: 8px;
                 padding: 2px 5px;
                 margin: 2px;
+            }
+
+            .letter {
+                font-size: 45px;
             }
         }
 
