@@ -28,7 +28,7 @@
             border: none;
             cursor: pointer;
             border-radius: 50%;
-            box-shadow: 0 0 10px limegreen;
+            box-shadow: 0 0 10px #7A8F94;
             z-index: 1000;
             outline: none;
         }
@@ -40,7 +40,7 @@
             left: 50%;
             width: 300px;
             height: 300px;
-            background-color: #992500;
+            background-color: black;
             color: #B34927;
             transform: translate(-50%, -50%);
             z-index: 1000;
@@ -199,6 +199,13 @@
             20%, 100% { opacity:1; }
         }
 
+        @media only screen and (max-width: 768px) {
+            #toggle-button {
+                width: 30px; /* 버튼 크기 조정 */
+                height: 30px; /* 버튼 크기 조정 */
+            }
+        }
+
     </style>
     <script type="importmap">
         {
@@ -220,7 +227,7 @@
         <div class="noise"></div>
         <div class="noise noise-moving"></div>
 
-        <div class="play" data-splitting> You already know that we are not just one. </div>
+        <div class="play" data-splitting> You already know that </p> we are not just one. </div>
     </div>
 
     <script type="module">
@@ -373,12 +380,12 @@
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
 
-                // 3초 후 알림을 띄우고 aespa.com으로 이동
+                // 5초 후 알림을 띄우고 aespa.com으로 이동
                 setTimeout(() => {
-                    if (confirm('We are coming')) {
+                    if (confirm('We are coming.')) {
                         window.location.href = 'https://www.aespa.com';
                     }
-                }, 3000);
+                }, 5000);
             });
 
         const toggleButton = document.getElementById('toggle-button');
