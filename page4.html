@@ -3,12 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 5</title>
+    <title>Space Grid</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Press+Start+2P">
+
     <style>
-        body {
+        @font-face {
+            font-family: 'Nico Moji';
+            font-style: normal;
+            font-weight: 400;
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+        }
+
+        html, body {
             margin: 0;
             overflow: hidden;
             background: black;
+            font-family: 'Nico Moji', sans-serif;
         }
         .volume-controls {
             position: absolute;
@@ -65,7 +81,7 @@
             border: none;
             cursor: pointer;
             border-radius: 50%;
-            box-shadow: 0 0 10px limegreen;
+            box-shadow: 0 0 10px #7A8F94;
             z-index: 1000;
             outline: none;
         }
@@ -275,6 +291,14 @@
             0%, 19% { opacity:0; }
             20%, 100% { opacity:1; }
         }
+
+        @media only screen and (max-width: 768px) {
+            #toggle-button {
+                width: 30px; /* 버튼 크기 조정 */
+                height: 30px; /* 버튼 크기 조정 */
+            }
+        }
+
     </style>
 </head>
 <body>
