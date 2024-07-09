@@ -3,405 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 3</title>
+    <title>The message</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap">
     <style>
-        body {
-            margin: 0;
+        @font-face {
+            font-family: 'Nico Moji';
+            font-style: normal;
+            font-weight: 400;
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        html, body {
             padding: 0;
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+            font-family: 'Nico Moji', sans-serif;
         }
 
-        #container {
+        .hidden {
+            display: none;
+        }
+
+        svg {
+            font-family: "Audiowide", cursive;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            filter: url(#screen-noise);
+        }
+
+        body:before {
+            content: " ";
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background-image: linear-gradient(
+                    0deg,
+                    transparent 50%,
+                    rgba(0, 0, 0, 0.8) 10%
+                ),
+                linear-gradient(90deg, transparent 80%, rgba(0, 0, 0, 0.8) 10%);
+            background-size: 3px 3px;
+        }
+
+        svg text {
+            text-transform: uppercase;
+            fill: red;
+            font-size: 24px;
+            filter: url(#Glow);
+        }
+
+        .crt-screen {
+            width: 100%;
+            height: 100%;
+        }
+
+        #toggle-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: url('src/toggle.png') no-repeat center center;
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #7A8F94;
+            z-index: 1000;
+            outline: none;
+        }
+
+        #toggle-modal {
+            display: none; /* Ensure it's hidden initially */
             position: fixed;
-            touch-action: none;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background-color: #000099;
+            color: #33CCFF;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            flex-direction: column;
         }
+
+        #close-toggle-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #hint-toggle-button {
+            border-radius: 5%; /* 둥근 원형 버튼 */
+            margin-top: 30px; /* 위의 텍스트와 마진값 */
+            padding: 10px 15px; /* 버튼 내부 여백 */
+            background-color: #357CDC;
+            color: white;
+            font-family: 'Nico Moji', sans-serif;
+            cursor: pointer;
+        }
+
+        .intro-wrap {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-wrap .scanlines,
+        .intro-wrap .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .intro-wrap .noise {
+            z-index: 400;
+            opacity: .3;
+        }
+
+        .intro-wrap .noise:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://ice-creme.de/images/background-noise.png');
+            pointer-events: none;
+        }
+
+        .intro-wrap .noise-moving {
+            opacity: 1;
+            z-index: 450;
+        }
+
+        .intro-wrap .noise-moving:before {
+            will-change: background-position;
+            animation: noise 1s infinite alternate;
+        }
+
+        .intro-wrap .scanlines {
+            z-index: 300;
+            opacity: .2;
+            will-change: opacity;
+            animation: opacity 3s linear infinite;
+        }
+
+        .intro-wrap .scanlines:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
+            background-size: 100% 4px;
+            animation: scanlines .2s linear infinite;
+        }
+
+        .intro-wrap .play {
+            will-change: text-shadow;
+            animation: rgbText 2s steps(9) 0s infinite alternate;
+        }
+
+        .intro-wrap .play .char {
+            will-change: opacity;
+            animation: type 1.2s infinite alternate;
+            animation-delay: calc(60ms * var(--char-index));
+        }
+
+        .intro-wrap .time {
+            will-change: text-shadow;
+            animation: rgbText 1s steps(9) 0s infinite alternate;
+        }
+
+        .intro-wrap .recordSpeed {
+            will-change: text-shadow;
+            animation: rgbText 1s steps(9) 0s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes noise {
+            0%, 100% { background-position: 0 0; }
+            10% { background-position: -5% -10%; }
+            20% { background-position: -15% 5%; }
+            30% { background-position: 7% -25%; }
+            40% { background-position: 20% 25%; }
+            50% { background-position: -25% 10%; }
+            60% { background-position: 15% 5%; }
+            70% { background-position: 0 15%; }
+            80% { background-position: 25% 35%; }
+            90% { background-position: -10% 10%; }
+        }
+
+        @keyframes opacity {
+            0% { opacity: .6; }
+            20% { opacity: .3; }
+            35% { opacity: .5; }
+            50% { opacity: .8; }
+            60% { opacity: .4; }
+            80% { opacity: .7; }
+            100% { opacity: .6; }
+        }
+
+        @keyframes scanlines {
+            from {
+                background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, .5) 51%);
+                background-size: 100% 4px;
+            }
+            to {
+                background: linear-gradient(to bottom, rgba(0, 0, 0, .5) 50%, transparent 51%);
+                background-size: 100% 4px;
+            }
+        }
+
+        @keyframes rgbText {
+            0% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            25% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 1px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            45% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            50% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            55% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 0px 0 3px rgba(251, 0, 231, 0.8), 0 0px 3px rgba(0, 233, 235, 0.8), 0px 0 3px rgba(0, 242, 14, 0.8), 0 0px 3px rgba(244, 45, 0, 0.8), 0px 0 3px rgba(59, 0, 226, 0.8);
+            }
+            90% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), -5px 0 1px rgba(251, 0, 231, 0.8), 0 5px 1px rgba(0, 233, 235, 0.8), 5px 0 1px rgba(0, 242, 14, 0.8), 0 -5px 1px rgba(244, 45, 0, 0.8), 5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+            100% {
+                text-shadow: -1px 1px 8px rgba(255, 255, 255, 0.6), 1px -1px 8px rgba(255, 255, 235, 0.7), 5px 0 1px rgba(251, 0, 231, 0.8), 0 -5px 1px rgba(0, 233, 235, 0.8), -5px 0 1px rgba(0, 242, 14, 0.8), 0 5px 1px rgba(244, 45, 0, 0.8), -5px 0 1px rgba(59, 0, 226, 0.8);
+            }
+        }
+
+        @keyframes type {
+            0%, 19% { opacity:0; }
+            20%, 100% { opacity:1; }
+        }
+
+        @media only screen and (max-width: 768px) {
+            #toggle-button {
+                width: 30px; /* 버튼 크기 조정 */
+                height: 30px; /* 버튼 크기 조정 */
+            }
+        }
+
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js"></script>
 </head>
-<body>
-    <audio id="audio" src="src/i'mlike.wav"></audio>
-    <script id="vertexShader" type="x-shader/x-vertex">
-        void main() {
-            gl_Position = vec4( position, 1.0 );
-        }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        uniform vec2 u_resolution;
-        uniform float u_time;
-        uniform vec2 u_mouse;
-        uniform sampler2D u_noise;
-        uniform sampler2D u_tex_wormhole;
-        uniform sampler2D u_tex_wall;
 
-        const int octaves = 2;
-        const float seed = 43758.5453123;
-        const float seed2 = 73156.8473192;
-        const float eps = 0.005;
-        const float speed = 8.0;
+<body class="hidden">
+    <div class="crt-screen hidden">
+        <svg id="initial-svg" viewBox="0 0 300 200" xmlns='http://www.w3.org/2000/svg'>
+            <defs>
+                <filter id='screen-noise'>
+                    <feTurbulence type='turbulence' result='noise' baseFrequency='0.2' numOctaves='1' seed='2' stitchTiles='noStitch' />
+                    <feOffset dy="0" dx="0">
+                        <animate attributeName="dy" values="0;-20" dur=".1s" begin="0s" repeatCount="indefinite" />
+                        <animate attributeName="dx" values="0;20" dur=".3s" begin="0s" repeatCount="indefinite" />
+                    </feOffset>
+                    <feComponentTransfer>
+                        <feFuncR type="linear" slope="1" intercept="-0.4" />
+                        <feFuncG type="linear" slope="1" intercept="-0.4" />
+                        <feFuncB type="linear" slope="1" intercept="-0.4" />
+                    </feComponentTransfer>
+                    <feBlend in="SourceGraphic" in2="noiseElement" mode="multiply" result="screen-content" />
+                    <feTurbulence baseFrequency="0.01 1" result="waves" numOctaves="2" />
+                    <feDisplacementMap in="screen-content" in2="waves" scale="2" xChannelSelector="R" yChannelSelector="R">
+                        <animate attributeName="scale" values="0;10;0;50;5" dur="3s" begin="0s" repeatCount="indefinite" />
+                    </feDisplacementMap>
+                </filter>
+                <filter id="Glow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="6 2" result="glow" />
+                    <feMerge>
+                        <feMergeNode in="glow" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <pattern id="Grid" x="0" y="0" width="0.2" height="0.2">
+                    <rect x="0" y="0" width="100px" height="100px" stroke='blue' fill='transparent' stroke-width='2' />
+                    <rect x="2" y="0" width="100px" height="100px" stroke='green' fill='transparent' stroke-width='2' />
+                    <animateTransform attributeType="xml" attributeName="patternTransform" type="translate" values="0,0;60,40" dur="5s" begin="0s" repeatCount="indefinite" />
+                </pattern>
+            </defs>
+            <rect height="100%" width="100%" fill="url(#Grid)" filter="url(#Glow)" />
+            <text x="50%" y="50%" text-anchor="middle" dy="0.35em">
+                <tspan x="50%" dy="0">I'M LIKE</tspan>
+            </text>
+        </svg>
 
-        vec3 movement = vec3(0.0);
-        vec2 uv;
+        <!-- Hidden SVG that will be shown after 9 seconds -->
+        <svg id="duplicate-svg" viewBox="0 0 300 200" xmlns='http://www.w3.org/2000/svg' class="hidden">
+            <rect height="100%" width="100%" fill="url(#Grid)" filter="url(#Glow)" />
+            <text x="50%" y="25%" dy=".35em" text-anchor="middle">
+                <tspan x="50%" dy="-0.35em">SOME KIND OF</tspan>
+                <tspan x="50%" dy="1.2em">SUPERNOVA</tspan>
+            </text>
+            <text x="50%" y="75%" dy=".35em" text-anchor="middle">
+                <tspan x="50%" dy="-0.35em">SOME KIND OF</tspan>
+                <tspan x="50%" dy="1.2em">SUPERNOVA</tspan>
+            </text>
+        </svg>
+    </div>
 
-        const int maxIterations = 256;
-        const int maxIterationsShad = 16;
-        const float stepScale = 0.95;
-        const float stopThreshold = 0.0005;
-        const float clipNear = 0.0;
-        const float clipFar = 32.0;
+    <!-- Toggle Button -->
+    <button id="toggle-button"></button>
+    <!-- Toggle Modal -->
+    <div id="toggle-modal" class="intro-wrap">
+        <div class="scanlines"></div>
+        <div class="noise"></div>
+        <div class="noise noise-moving"></div>
+        <button id="close-toggle-modal">&times;</button>
 
-        #define PI 3.14159265359
-        #define TAU 6.28318530718
+        <div class="play" data-splitting> Almost there. <br> Double click when you're ready to take us at the very last.</div>
 
-        vec3 camPath(float t){
-            return vec3(sin(t/10.0)*5.0, cos(t/10.0)*5.0, t);
-        }
+        <button id="hint-toggle-button" class="control-button">HINT</button>
+        <div id="hint-text" style="display: none; color: #33CCFF; font-family: 'VT323', monospace; margin-top: 10px;">
+            'SUPERNOVA' 문구가 모두 표출된 이후 화면을 꾹 클릭(모바일), 혹은 더블 클릭(데스크탑)하면 페이지 전환이 가능합니다.
+        </div>
+    </div>
 
-        mat4 rotationMatrix(vec3 axis, float angle)
-        {
-            axis = normalize(axis);
-            float s = sin(angle);
-            float c = cos(angle);
-            float oc = 1.0 - c;
-
-            return mat4(
-                oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-                0.0,                                0.0,                                0.0,                                1.0
-            );
-        }
-
-        float length2( vec2 p )
-        {
-            return sqrt( p.x*p.x + p.y*p.y );
-        }
-
-        float length6( vec2 p )
-        {
-            p = p*p*p; p = p*p;
-            return pow( p.x + p.y, 1.0/6.0 );
-        }
-
-        float length8( vec2 p )
-        {
-            p = p*p; p = p*p; p = p*p;
-            return pow( p.x + p.y, 1.0/8.0 );
-        }
-
-        float sdSphere( vec3 p, float s )
-        {
-            return length(p)-s;
-        }
-
-        float smin(float a, float b, float k) {
-            float res = exp(-k*a) + exp(-k*b);
-            return -log(res)/k;
-        }
-
-        vec3 random3( vec3 p ) {
-            return fract(sin(vec3(dot(p,vec3(127.1,311.7,319.8)),dot(p,vec3(269.5,183.3, 415.2)),dot(p,vec3(362.9,201.5,134.7))))*43758.5453);
-        }
-
-        vec2 random2( vec2 p ) {
-            return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-        }
-
-        float world_sdf(in vec3 p, inout int objid) {
-            float world = 10.0;
-
-            vec3 _path = camPath(p.z + 1.0);
-            p.xy -= _path.xy;
-            vec2 polar = vec2(atan(p.y, p.x), length(p.xy));
-
-            world = 0.5 - polar.y;
-            objid = 1;
-
-            p = mod((vec4(p * vec3(1.5, 1.5, 0.1), 1.0) * rotationMatrix(vec3(0.0, 0.0, 1.0), u_time)).xyz, 1.0) - 0.5;
-
-            float sphere = sdSphere(p, 0.05);
-            if (sphere < world) {
-                world = sphere;
-                objid = 0;
-            }
-
-            return world;
-        }
-
-        float world_sdf(in vec3 p) {
-            int objid;
-            return world_sdf(p, objid);
-        }
-
-        vec3 calculate_normal(in vec3 p)
-        {
-            const vec3 small_step = vec3(0.0001, 0.0, 0.0);
-
-            float gradient_x = world_sdf(vec3(p.x + eps, p.y, p.z)) - world_sdf(vec3(p.x - eps, p.y, p.z));
-            float gradient_y = world_sdf(vec3(p.x, p.y + eps, p.z)) - world_sdf(vec3(p.x, p.y - eps, p.z));
-            float gradient_z = world_sdf(vec3(p.x, p.y, p.z  + eps)) - world_sdf(vec3(p.x, p.y, p.z - eps));
-
-            vec3 normal = vec3(gradient_x, gradient_y, gradient_z);
-
-            return normalize(normal);
-        }
-
-        float rayMarching( vec3 origin, vec3 dir, float start, float end, inout float field, inout int objid ) {
-            float sceneDist = 1e4;
-            float rayDepth = start;
-            for ( int i = 0; i < maxIterations; i++ ) {
-                sceneDist = world_sdf( origin + dir * rayDepth, objid );
-
-                if (( sceneDist < stopThreshold ) || (rayDepth >= end)) {
-                    break;
-                }
-                rayDepth += sceneDist * stepScale;
-            }
-
-            if ( sceneDist >= stopThreshold ) rayDepth = end;
-            else rayDepth += sceneDist;
-
-            return rayDepth;
-        }
-
-        float hash( float n ) {
-            return fract(sin(n)*43758.5453);
-        }
-
-        vec3 lighting( vec3 sp, vec3 camPos, int reflectionPass, float dist, float field, vec3 rd, int objid) {
-            vec3 sceneColor = vec3(0.0);
-            vec3 objColor = vec3(-1.0);
-
-            vec3 surfNormal = calculate_normal(sp);
-
-            if (objid == 1) {
-                float ang = atan(surfNormal.y, surfNormal.x);
-                vec4 noise = texture2D(u_noise, vec2(ang * 0.1, sp.z * 0.5) * 1.0, -100.0);
-                float spike_mod = sin(ang * 200.0 + sin(u_time) * 100.0) + noise.x;
-                float spikes_1 = clamp(spike_mod, 0.0, 1.0);
-                objColor = texture2D(u_tex_wormhole, vec2(ang, sp.z * 0.1)).xyz;
-                objColor *= sin(sp.z * 1.8);
-
-                float spikes = clamp(spikes_1 - objColor.b * 2.0 + 0.5, 0.0, 1.0);
-                objColor -= vec3(spikes) * 0.2;
-                vec3 tex1 = texture2D(u_tex_wall, vec2(ang, sp.z * 1.0) * 0.5).grb;
-                objColor += clamp(tex1 * tex1 * tex1 * tex1, -1.0, 1.0) * sin(sp.z * 2.8);
-                objColor = clamp(objColor, 0.0, 1.0);
-                objColor.g = smoothstep(0.0, 0.7, objColor.g);
-            }
-
-            vec3 lp = vec3(0.0, 0.0, 1.0) + movement;
-            vec3 ld = lp - sp;
-
-            vec3 lcolor1_initial = vec3(0.639, 0.635, 1.0); // A3A2FF
-            vec3 lcolor2_initial = vec3(0.051, 0.337, 0.835); // 0D56D5
-
-            vec3 lcolor1_final = vec3(0.055, 0.871, 0.463); // 0EDE76
-            vec3 lcolor2_final = vec3(0.835, 0.2, 0.019); // D53305
-
-            float transition_time = 0.0; // 전환 시작 시간을 0으로 설정
-            float transition_duration = 5.0; // 전환이 5초 동안 진행되도록 설정
-
-            vec3 lcolor1 = mix(lcolor1_initial, lcolor1_final, smoothstep(transition_time, transition_duration, u_time));
-            vec3 lcolor2 = mix(lcolor2_initial, lcolor2_final, smoothstep(transition_time, transition_duration, u_time));
-
-            float len = length(ld);
-            ld /= len;
-            float lightAtten = min(1.0 / (0.15 * len * len), 1.0);
-
-            float sceneLen = length(camPos - sp);
-            float sceneAtten = min(1.0 / (0.015 * sceneLen * sceneLen), 1.0);
-
-            vec3 ref = reflect(-ld, surfNormal);
-            float ao = 1.0;
-            float ambient = 1.5;
-            float specularPower = 200000.0;
-            float diffuse = max(0.0, dot(surfNormal, ld));
-            float specular = max(0.0, dot(ref, normalize(camPos - sp)));
-            specular = pow(specular, specularPower);
-
-            // 조명 색상을 두 가지로 혼합
-            vec3 lcolor = mix(lcolor1, lcolor2, sin(u_time));
-
-            sceneColor += (objColor * (diffuse * 0.8 + ambient) + specular * 0.5) * lcolor * 1.3 * lightAtten;
-
-            return sceneColor;
-        }
-
-        void main() {
-        vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
-        uv = (2.0 * gl_FragCoord.xy / u_resolution.xy - 1.0) * aspect;
-
-        movement = camPath(u_time * speed);
-        vec3 lookAt = vec3(0.0, 0.0, 0.0);
-        vec3 camera_position = vec3(0.0, 0.0, -1.0);
-
-        lookAt += camPath(u_time * speed + 3.0);
-        camera_position += movement;
-
-        vec3 forward = normalize(lookAt - camera_position);
-        vec3 right = normalize(vec3(forward.z, 0.0, -forward.x));
-        vec3 up = normalize(cross(forward, right));
-
-        float FOV = 2.0;
-        vec3 ro = camera_position;
-        vec3 rd = normalize(forward + FOV * uv.x * right + FOV * uv.y * up);
-
-        int objid = 0;
-        float field = 0.0;
-        float dist = rayMarching(ro, rd, clipNear, clipFar, field, objid);
-        if (dist >= clipFar) {
-            gl_FragColor = vec4(vec3(0.0), 1.0);
-            return;
-        }
-
-        vec3 sp = ro + rd * dist;
-        vec3 sceneColor = lighting(sp, camera_position, 0, dist, field, rd, objid);
-
-        // 터널을 통과한 것처럼 3.2초에서 3.4초 사이에 화면이 급격히 밝아지는 효과 추가
-        float brightness = smoothstep(3.2, 3.4, u_time);
-        sceneColor = mix(sceneColor, vec3(1.0), brightness);
-
-        // 3.6초 이후 글로우 효과로 깜박거리게 설정 (3번 반복)
-        if (u_time >= 3.6) {
-            float glow = 0.5 + 0.5 * sin((u_time - 3.6) * 2.0 * 3.0 * PI); // 느리게 3번 깜박
-            gl_FragColor = vec4(vec3(glow), 1.0);
-        } else {
-            vec3 uv3 = normalize(vec3(uv, 0.05)) * 30.0 + vec3(0.0, 0.0, u_time * 10.0);
-            vec3 i = floor(uv3);
-            vec3 f = fract(uv3);
-            vec3 star_loc = fract(cross(i, random3(i)));
-            float star = max(0.0, 20.0 * (0.1 - distance(f, star_loc))) * length(uv);
-
-            gl_FragColor = vec4(clamp(sceneColor, 0.0, 1.0) + star, 1.0);
-        }
-    }
-    </script>
-
-    <div id="container" touch-action="none"></div>
+    <!-- Audio 요소 추가 -->
+    <audio id="background-music" src="src/i'mlike.wav" preload="auto"></audio>
 
     <script>
-        let container;
-        let camera, scene, renderer;
-        let uniforms;
+         document.addEventListener('DOMContentLoaded', () => {
+            const body = document.querySelector('body');
+            body.classList.remove('hidden');
+            const toggleButton = document.getElementById('toggle-button');
+            const toggleModal = document.getElementById('toggle-modal');
+            const hintToggleButton = document.getElementById('hint-toggle-button');
+            const hintText = document.getElementById('hint-text');
+            const closeToggleModal = document.getElementById('close-toggle-modal');
 
-        let textures = {
-            'noise': {
-                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/noise.png',
-                val: undefined
-            },
-            'wormhole': {
-                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/workhole.png',
-                val: undefined
-            },
-            'wall': {
-                url: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/982762/voronoi-tile.png',
-                val: undefined
+            toggleButton.style.display = 'block';
+
+            toggleButton.addEventListener('click', () => {
+                if (toggleModal.style.display === 'none') {
+                    toggleModal.style.display = 'flex';
+                } else {
+                    toggleModal.style.display = 'none';
+                }
+            });
+
+            hintToggleButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                if (hintText.style.display === 'none') {
+                    hintText.style.display = 'block';
+                } else {
+                    hintText.style.display = 'none';
+                }
+            });
+
+            closeToggleModal.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                toggleModal.style.display = 'none';
+                showPage4Content(); // close button 클릭 시 showPage4Content 실행
+            });
+
+            body.addEventListener('click', () => {
+                if (toggleModal.style.display === 'none') {
+                    showPage4Content();
+                }
+            }, { once: true });
+
+            body.addEventListener('touchstart', () => {
+                if (toggleModal.style.display === 'none') {
+                    showPage4Content();
+                }
+            }, { once: true });
+
+            let pressTimer;
+            const pressDuration = 500;
+
+            body.addEventListener('touchstart', (e) => {
+                if (toggleModal.style.display === 'none') {
+                    pressTimer = setTimeout(() => {
+                        window.location.href = 'page4.html';
+                    }, pressDuration);
+                }
+            });
+            body.addEventListener('touchend', (e) => {
+                clearTimeout(pressTimer);
+            });
+
+            function showPage4Content() {
+                console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
+                const audio = document.getElementById('background-music');
+                audio.play().catch(error => {
+                    console.log('Audio playback failed:', error);
+                });
+
+                document.querySelector('.crt-screen').classList.remove('hidden');
+
+                setTimeout(() => {
+                    document.getElementById('initial-svg').classList.add('hidden');
+                    document.getElementById('duplicate-svg').classList.remove('hidden');
+                }, 3000);
+
+                setTimeout(() => {
+                    enablePageTransition();
+                }, 2000); // 2초 후 클릭 유도
             }
-        };
 
-        let loader = new THREE.TextureLoader();
-        loader.setCrossOrigin("anonymous");
-        for (let key in textures) {
-            let entry = textures[key];
-            loader.load(entry.url, (texture) => {
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.minFilter = THREE.LinearFilter;
-                entry.val = texture;
-                let resolve = true;
-                for (let key in textures) {
-                    if (textures[key].val === undefined) {
-                        resolve = false;
+            function enablePageTransition() {
+                document.addEventListener('dblclick', () => {
+                    window.location.href = 'page4.html';
+                }, { once: true });
+
+                document.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 2) {
+                        window.location.href = 'page4.html';
                     }
-                }
-                if (resolve) {
-                    init();
-                    animate();
-                }
-            });
-        }
-
-        function init() {
-            container = document.getElementById('container');
-
-            camera = new THREE.Camera();
-            camera.position.z = 1;
-
-            scene = new THREE.Scene();
-
-            var geometry = new THREE.PlaneBufferGeometry(2, 2);
-
-            uniforms = {
-                u_time: { type: "f", value: 1.0 },
-                u_resolution: { type: "v2", value: new THREE.Vector2() },
-                u_noise: { type: "t", value: textures.noise.val },
-                u_tex_wormhole: { type: "t", value: textures.wormhole.val },
-                u_tex_wall: { type: "t", value: textures.wall.val },
-                u_mouse: { type: "v2", value: new THREE.Vector2() }
-            };
-
-            var material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent
-            });
-            material.extensions.derivatives = true;
-
-            var mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-
-            renderer = new THREE.WebGLRenderer();
-            renderer.setPixelRatio(window.devicePixelRatio);
-
-            container.appendChild(renderer.domElement);
-
-            onWindowResize();
-            window.addEventListener('resize', onWindowResize, false);
-
-            document.addEventListener('pointermove', (e) => {
-                let ratio = window.innerHeight / window.innerWidth;
-                uniforms.u_mouse.value.x = (e.pageX - window.innerWidth / 2) / window.innerWidth / ratio;
-                uniforms.u_mouse.value.y = (e.pageY - window.innerHeight / 2) / window.innerHeight * -1;
-
-                e.preventDefault();
-            });
-
-            document.addEventListener('dblclick', () => {
-                playSoundAndRedirect();
-            });
-        }
-
-        function onWindowResize(event) {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            uniforms.u_resolution.value.x = renderer.domElement.width;
-            uniforms.u_resolution.value.y = renderer.domElement.height;
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            render();
-        }
-
-        function render() {
-            uniforms.u_time.value += 0.01;
-
-            // 3.6초 이후 페이지 배경을 하얀색으로 변경하고 글로우 효과로 깜박거리게 설정
-            if (uniforms.u_time.value >= 3.6) {
-                document.body.style.backgroundColor = 'white';
-                document.getElementById('container').style.display = 'none';
-                return; // 애니메이션 루프 중단
+                }, { once: true });
             }
-
-            renderer.render(scene, camera);
-        }
-
-        function playSoundAndRedirect() {
-            const audio = document.getElementById('audio');
-            audio.play();
-            audio.addEventListener('ended', () => {
-                window.location.href = 'page4.html';
-            });
-        }
-
+        });
     </script>
+
 </body>
 </html>

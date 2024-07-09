@@ -19,7 +19,6 @@
                  url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
             }
 
-
         body {
             overflow: hidden;
             margin: 0;
@@ -27,10 +26,12 @@
             flex-direction: column;
             align-items: center;
         }
+
         #slots {
             display: flex;
             margin: 10px 0;
         }
+
         .slot {
             width: 30px;
             height: 30px;
@@ -42,6 +43,7 @@
             font-size: 20px;
             font-weight: bold;
         }
+
         .inputSlot {
             width: 30px;
             height: 30px;
@@ -51,8 +53,8 @@
             font-weight: bold;
             text-align: center;
         }
-        #goButton {
 
+        #goButton {
             border: 1px solid #000;
             margin: 0 5px;
             display: flex;
@@ -62,7 +64,7 @@
             font-weight: bold;
             cursor: pointer;
             padding: 10px 15px; /* 버튼 내부 여백 */
-            background-color: #357CDC;
+            background-color: #000000;
             border: none;
             color: white;
             font-family: 'Nico Moji', sans-serif;
@@ -94,17 +96,22 @@
                 align-items: center;
             }
 
-
-             #slots {
-                flex-wrap: wrap;
+            #slots {
+                display: flex;
+                flex-wrap: nowrap; /* 줄바꿈을 하지 않도록 설정 */
                 justify-content: center;
+                width: 100%; /* 슬라이더가 부모 요소를 넘지 않도록 설정 */
+                max-width: 90%; /* 부모 요소보다 살짝 작게 설정 */
             }
 
             .slot, .inputSlot {
-                width: 25px;
-                height: 25px;
+                width: 20px; /* 기본 너비 설정 */
+                height: 20px; /* 기본 높이 설정 */
                 font-size: 16px;
                 margin: 2px;
+                flex-basis: 20px; /* 기본 크기를 설정 */
+                max-width: 20px; /* 최대 크기를 설정 */
+                min-width: 10px; /* 최소 크기 설정 */
             }
 
             #goButton {
@@ -115,8 +122,10 @@
                 margin: 2px;
             }
 
+            .letter {
+                font-size: 45px;
+            }
         }
-
 
     </style>
     <script type="importmap">
@@ -151,13 +160,14 @@
             slot.classList.add('inputSlot');
             slot.maxLength = 1;
             slot.addEventListener('input', (event) => handleInput(event, i));
+            slot.addEventListener('keydown', (event) => handleBackspace(event, i));
             slotsContainer.appendChild(slot);
         }
 
         // GO 버튼 클릭 이벤트
         goButton.addEventListener('click', () => {
             if (collectedLetters.every(letter => letter !== null)) {
-                window.location.href = 'page6_text.html'; // 다음 페이지 URL로 변경
+                window.location.href = 'page7.html'; // 다음 페이지 URL로 변경
             }
         });
 
@@ -184,6 +194,17 @@
                 }
             } else {
                 event.target.value = '';
+            }
+        }
+
+        function handleBackspace(event, index) {
+            if (event.key === 'Backspace' && collectedLetters[index] === null && index > 0) {
+                collectedLetters[index - 1] = null;
+                updateSlots();
+                slotsContainer.children[index - 1].focus();
+            } else if (event.key === 'Backspace') {
+                collectedLetters[index] = null;
+                updateSlots();
             }
         }
 

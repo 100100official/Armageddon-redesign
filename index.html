@@ -10,14 +10,14 @@
 
     <style>
         @font-face {
-        font-family: 'Nico Moji';
-        font-style: normal;
-        font-weight: 400;
-        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
-        src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
-             url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
+            font-family: 'Nico Moji';
+            font-style: normal;
+            font-weight: 400;
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot);
+            src: url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.eot?#iefix) format('embedded-opentype'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff2) format('woff2'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.woff) format('woff'),
+                url(//fonts.gstatic.com/ea/nicomoji/v1/NicoMoji-Regular.ttf) format('truetype');
         }
 
         @keyframes blink {
@@ -133,7 +133,7 @@
             cursor: pointer;
             border-radius: 3px;
             font-family: 'Nico Moji', sans-serif;
-            user-select: none;
+            user-select: none; /* 텍스트 선택 방지 */
         }
 
         .control-button:active {
@@ -146,6 +146,19 @@
             font-size: 16px;
             margin-bottom: 10px;
         }
+
+        #zoomIn {
+            user-select: none;
+        }
+
+        #zoomOut {
+            user-select: none;
+        }
+
+        #capture {
+            user-select: none;
+        }
+
 
         #message {
             color: limegreen;
@@ -164,7 +177,7 @@
             border: none;
             cursor: pointer;
             border-radius: 50%;
-            box-shadow: 0 0 10px limegreen;
+            box-shadow: 0 0 10px #7A8F94;
             z-index: 1000;
             outline: none;
             display: none; /* Initially hidden */
@@ -197,6 +210,17 @@
             background-color: #357CDC;
             color: white;
             font-family: 'Nico Moji', sans-serif;
+            cursor: pointer;
+        }
+
+        #close-toggle-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 24px;
             cursor: pointer;
         }
 
@@ -383,7 +407,6 @@
             }
 
             #controls {
-
                 gap: 5px; /* 간격 조정 */
             }
 
@@ -403,11 +426,10 @@
             }
 
             #toggle-button {
-                width: 40px; /* 버튼 크기 조정 */
-                height: 40px; /* 버튼 크기 조정 */
+                width: 30px; /* 버튼 크기 조정 */
+                height: 30px; /* 버튼 크기 조정 */
             }
         }
-
     </style>
 </head>
 <body>
@@ -422,7 +444,7 @@
             <button id="zoomIn" class="control-button">+</button>
             <button id="zoomOut" class="control-button">-</button>
             <button id="capture" class="control-button">Capture</button>
-<!--            <button id="console" class="control-button">Console</button>-->
+            <!-- <button id="console" class="control-button">Console</button> -->
         </div>
         <div id="observation-details">Observation Date: N/A - Location: N/A</div>
         <div id="message"></div>
@@ -435,7 +457,7 @@
         <div class="scanlines"></div>
         <div class="noise"></div>
         <div class="noise noise-moving"></div>
-
+        <button id="close-toggle-modal">&times;</button>
         <div class="play" data-splitting>Hello, this is your captain speaking </br> We have observed something in our space. </br> Find it, and make contact. </div>
 
         <button id="hint-toggle-button" class="control-button">HINT</button>
@@ -457,9 +479,9 @@
         import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
         import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
         import {
-          EffectComposer,
-          Pass,
-          FullScreenQuad
+            EffectComposer,
+            Pass,
+            FullScreenQuad
         } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
         import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
         import { LensDistortionPassGen } from 'https://cdn.jsdelivr.net/gh/ycw/three-lens-distortion@1.0.0/src/index.js';
@@ -480,6 +502,7 @@
             const toggleModal = document.getElementById('toggle-modal');
             const hintToggleButton = document.getElementById('hint-toggle-button');
             const hintText = document.getElementById('hint-text');
+            const closeToggleModal = document.getElementById('close-toggle-modal');
 
             // Ensure the modal is hidden initially
             toggleModal.style.display = 'none';
@@ -541,6 +564,11 @@
 
             toggleModal.addEventListener('click', () => {
                 alert("Interactive message: 'Hello, this is the captain speaking'");
+            });
+
+            closeToggleModal.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                toggleModal.style.display = 'none';
             });
 
             const app = new App({ canvas: document.querySelector("#scene") });
@@ -662,8 +690,9 @@
                 };
 
                 const startZoomOut = () => {
+                    const zoomSpeed = this.isMobile ? 0.2 : 0.1; // 모바일에서 2배 빠르게
                     zoomOutInterval = setInterval(() => {
-                        this.camera.position.z += 0.1;
+                        this.camera.position.z += zoomSpeed;
                         this.controls.update();
                     }, 16);
                 };
