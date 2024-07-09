@@ -581,11 +581,13 @@
             canvas.addEventListener('click', app.onCanvasClick.bind(app));
             canvas.addEventListener('touchstart', app.onCanvasClick.bind(app));
 
-            // user-select 방지를 위해 selectstart, touchstart, contextmenu 이벤트 핸들러 추가
+            // user-select 방지를 위해 selectstart, touchstart, contextmenu 이벤트 핸들러 추가 (capture 버튼 제외)
             document.querySelectorAll('.control-button').forEach(button => {
-                button.addEventListener('selectstart', event => event.preventDefault());
-                button.addEventListener('touchstart', event => event.preventDefault());
-                button.addEventListener('contextmenu', event => event.preventDefault());
+                if (button.id !== 'capture') {
+                    button.addEventListener('selectstart', event => event.preventDefault());
+                    button.addEventListener('touchstart', event => event.preventDefault());
+                    button.addEventListener('contextmenu', event => event.preventDefault());
+                }
             });
         });
 
@@ -814,7 +816,8 @@
         new App({ canvas: document.querySelector("#scene") });
         </script>
 
-        <script src="script.js"></script>
-        </body>
-        </html>
+<script src="script.js"></script>
+</body>
+</html>
+
 
