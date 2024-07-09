@@ -510,7 +510,7 @@
                 gainNode.connect(distortion);
                 distortion.connect(audioContext.destination);
 
-                gainNode.gain.value = 0;
+                gainNode.gain.value = 0.5 * 0.5;
 
                 gainNodes[index] = gainNode;
 
