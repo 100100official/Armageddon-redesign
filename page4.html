@@ -589,10 +589,15 @@
             }
         }
 
+        // function updateVolumeSlider(volumeControl) {
+        //     const value = volumeControl.value * 100;
+        //     volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+        // }
         function updateVolumeSlider(volumeControl) {
             const value = volumeControl.value * 100;
-            volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
+            volumeControl.style.background = `linear-gradient(to bottom, gray ${value}%, white ${value}%)`;
         }
+
 
         function initializeVolumeSliders() {
             volumeControls.forEach(volumeControl => {
