@@ -683,6 +683,9 @@
             event.stopPropagation(); // 이벤트 전파 중지
             toggleModal.style.display = 'none';
         });
+        document.addEventListener('DOMContentLoaded', (event) => {
+            setupAudio();
+        });
     </script>
 </body>
 </html>
