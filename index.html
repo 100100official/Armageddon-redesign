@@ -736,7 +736,7 @@
                     });
 
                     console.log('Camera Zoom Level (Z Position):', this.camera.position.z);
-                    const zValueThreshold = this.isMobile ? 30 : 11; // 모바일과 데스크탑의 Z 값 설정
+                    const zValueThreshold = this.isMobile ? 20 : 11; // 모바일과 데스크탑의 Z 값 설정
 
                     if (this.camera.position.z >= zValueThreshold) {
                         document.getElementById('observation-details').textContent = "CAPTURED";
@@ -772,7 +772,7 @@
                         console.log('Blue Earth intersected'); // 파란 지구와의 교차 확인
 
                         if (this.isMobile) {
-                            if (this.camera.position.z >= 30) { // 모바일의 Z 값 조건
+                            if (this.camera.position.z >= 20) { // 모바일의 Z 값 조건
                                 console.log('Navigating to page2.html on mobile'); // 모바일에서 페이지 이동 디버깅 메시지
                                 window.location.href = 'page2.html';
                             } else {
