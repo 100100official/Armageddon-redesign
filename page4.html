@@ -26,6 +26,26 @@
             background: black;
             font-family: 'Nico Moji', sans-serif;
         }
+        .volume-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+        }
+        /* .volume-controls input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 8px;
+            height: 150px;
+            background: white;
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.2s;
+            transform: rotate(180deg); /* Flip the slider */
+        /* } */ 
         .volume-controls input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
@@ -38,17 +58,6 @@
             transform: rotate(180deg); /* Flip the slider */
         }
 
-        /* .volume-controls input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 8px;
-            height: 150px;
-            background: white;
-            border-radius: 5px;
-            outline: none;
-            transition: background 0.2s;
-            transform: rotate(180deg); /* Flip the slider */
-        /* } */ 
         .volume-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -329,7 +338,11 @@
         </div>
     </div>
 
-
+    <!-- Countdown Modals -->
+    <!-- <div id="countdown-modal-4" class="countdown-modal" style="display: none;">4</div>
+    <div id="countdown-modal-3" class="countdown-modal" style="display: none;">3</div>
+    <div id="countdown-modal-2" class="countdown-modal" style="display: none;">2</div>
+    <div id="countdown-modal-1" class="countdown-modal" style="display: none;">1</div> -->
     <div id="countdown-modal-4" class="countdown-modal" style="display: none;">
         <span class="countdown-text" id="countdown-text-4" style="font-family: 'Nico Moji';">4</span>
     </div>
@@ -578,9 +591,8 @@
 
         function updateVolumeSlider(volumeControl) {
             const value = volumeControl.value * 100;
-            volumeControl.style.background = `linear-gradient(to bottom, gray ${value}%, white ${value}%)`;
+            volumeControl.style.background = `linear-gradient(to top, gray ${value}%, white ${value}%)`;
         }
-
 
         function initializeVolumeSliders() {
             volumeControls.forEach(volumeControl => {
