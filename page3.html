@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Double</title>
+    <title>The message</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap">
     <style>
@@ -283,7 +283,6 @@
                 height: 30px; /* 버튼 크기 조정 */
             }
         }
-
     </style>
 </head>
 
@@ -362,73 +361,71 @@
     <audio id="background-music" src="src/i'mlike.wav" preload="auto"></audio>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const body = document.querySelector('body');
-        body.classList.remove('hidden');
-        const toggleButton = document.getElementById('toggle-button');
-        const toggleModal = document.getElementById('toggle-modal');
-        const hintToggleButton = document.getElementById('hint-toggle-button');
-        const hintText = document.getElementById('hint-text');
-        const closeToggleModal = document.getElementById('close-toggle-modal');
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.querySelector('body');
+            body.classList.remove('hidden');
+            const toggleButton = document.getElementById('toggle-button');
+            const toggleModal = document.getElementById('toggle-modal');
+            const hintToggleButton = document.getElementById('hint-toggle-button');
+            const hintText = document.getElementById('hint-text');
+            const closeToggleModal = document.getElementById('close-toggle-modal');
 
-        toggleButton.style.display = 'block';
+            toggleButton.style.display = 'block';
 
-        toggleButton.addEventListener('click', () => {
-            if (toggleModal.style.display === 'none') {
-                toggleModal.style.display = 'flex';
-            } else {
-                toggleModal.style.display = 'none';
-            }
-        });
-
-        hintToggleButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // 이벤트 전파 중지
-            if (hintText.style.display === 'none') {
-                hintText.style.display = 'block';
-            } else {
-                hintText.style.display = 'none';
-            }
-        });
-
-        closeToggleModal.addEventListener('click', (event) => {
-            event.stopPropagation(); // 이벤트 전파 중지
-            toggleModal.style.display = 'none';
-            showPage4Content(); // close button 클릭 시 showPage4Content 실행
-        });
-
-        function showPage4Content() {
-            console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
-            const audio = document.getElementById('background-music');
-            audio.play().catch(error => {
-                console.log('Audio playback failed:', error);
-            });
-
-            document.querySelector('.crt-screen').classList.remove('hidden');
-
-            setTimeout(() => {
-                document.getElementById('initial-svg').classList.add('hidden');
-                document.getElementById('duplicate-svg').classList.remove('hidden');
-            }, 3000);
-
-            setTimeout(() => {
-                enablePageTransition();
-            }, 2000); // 2초 후 클릭 유도
-        }
-
-        function enablePageTransition() {
-            document.addEventListener('dblclick', () => {
-                window.location.href = 'page4.html';
-            });
-
-            document.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2) {
-                    window.location.href = 'page4.html';
+            toggleButton.addEventListener('click', () => {
+                if (toggleModal.style.display === 'none') {
+                    toggleModal.style.display = 'flex';
+                } else {
+                    toggleModal.style.display = 'none';
                 }
             });
-        }
-    });
 
+            hintToggleButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                if (hintText.style.display === 'none') {
+                    hintText.style.display = 'block';
+                } else {
+                    hintText.style.display = 'none';
+                }
+            });
 
+            closeToggleModal.addEventListener('click', (event) => {
+                event.stopPropagation(); // 이벤트 전파 중지
+                toggleModal.style.display = 'none';
+                showPage4Content(); // close button 클릭 시 showPage4Content 실행
+            });
+
+            function showPage4Content() {
+                console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
+                const audio = document.getElementById('background-music');
+                audio.play().catch(error => {
+                    console.log('Audio playback failed:', error);
+                });
+
+                document.querySelector('.crt-screen').classList.remove('hidden');
+
+                setTimeout(() => {
+                    document.getElementById('initial-svg').classList.add('hidden');
+                    document.getElementById('duplicate-svg').classList.remove('hidden');
+                }, 3000);
+
+                setTimeout(() => {
+                    enablePageTransition();
+                }, 2000); // 2초 후 클릭 유도
+            }
+
+            function enablePageTransition() {
+                document.addEventListener('dblclick', () => {
+                    window.location.href = 'page4.html';
+                });
+
+                document.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 2) {
+                        window.location.href = 'page4.html';
+                    }
+                });
+            }
+        });
     </script>
 
 </body>
