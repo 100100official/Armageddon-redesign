@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two Earths WebGL Demo</title>
+    <title>Two Earths</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Press+Start+2P">
@@ -115,6 +115,7 @@
             display: none; /* 처음에는 숨김 */
             font-family: 'Nico Moji', sans-serif;
             z-index: 10;
+            user-select: none;
         }
 
         #controls {
@@ -690,7 +691,7 @@
                 };
 
                 const startZoomOut = () => {
-                    const zoomSpeed = this.isMobile ? 0.2 : 0.1; // 모바일에서 2배 빠르게
+                    const zoomSpeed = this.isMobile ? 0.3 : 0.1; // 모바일에서 3배 빠르게
                     zoomOutInterval = setInterval(() => {
                         this.camera.position.z += zoomSpeed;
                         this.controls.update();
