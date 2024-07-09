@@ -396,32 +396,6 @@
             showPage4Content(); // close button 클릭 시 showPage4Content 실행
         });
 
-        body.addEventListener('click', () => {
-            if (toggleModal.style.display === 'none') {
-                showPage4Content();
-            }
-        });
-
-        body.addEventListener('touchstart', () => {
-            if (toggleModal.style.display === 'none') {
-                showPage4Content();
-            }
-        });
-
-        let pressTimer;
-        const pressDuration = 500;
-
-        body.addEventListener('touchstart', (e) => {
-            if (toggleModal.style.display === 'none') {
-                pressTimer = setTimeout(() => {
-                    window.location.href = 'page4.html';
-                }, pressDuration);
-            }
-        });
-        body.addEventListener('touchend', (e) => {
-            clearTimeout(pressTimer);
-        });
-
         function showPage4Content() {
             console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
             const audio = document.getElementById('background-music');
@@ -453,6 +427,7 @@
             });
         }
     });
+
 
     </script>
 
