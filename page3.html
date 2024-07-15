@@ -451,7 +451,7 @@
     <audio id="background-music" src="src/i'mlike.wav" preload="auto"></audio>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
         const body = document.querySelector('body');
         body.classList.remove('hidden');
         const toggleButton = document.getElementById('toggle-button');
@@ -461,7 +461,7 @@
         const closeToggleModal = document.getElementById('close-toggle-modal');
 
         // Browser detection
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isSafariOrChrome = /Safari|Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
 
         toggleButton.style.display = 'block';
 
@@ -487,7 +487,6 @@
             toggleModal.style.display = 'none';
             showPage4Content(); // close button 클릭 시 showPage4Content 실행
         });
-
 
         function showPage4Content() {
             console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
@@ -545,6 +544,7 @@
             });
         }
     });
+
 
     </script>
 </body>
