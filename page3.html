@@ -489,15 +489,10 @@
         function showPage4Content() {
             console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
             const audio = document.getElementById('background-music');
-
-            // localstorage를 확인해서 음원 재생된 적이 없는 경우에만 플레이
-            //if (!localStorage.getItem('audioPlayed')) {
-                audio.play().catch(error => {
-                    console.log('Audio playback failed:', error);
-                });
-                // 음원 재생 여부를 저장
-                localStorage.setItem('audioPlayed', 'true');
-            }//
+            audio.play().catch(error => {
+                console.log('Audio playback failed:', error);
+            });
+            localStorage.setItem('audioPlayed', 'true');
 
             if (isSafari) {
                 const safariVideoContainer = document.getElementById('safari-video-container');
