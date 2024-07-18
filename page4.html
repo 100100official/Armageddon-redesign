@@ -492,67 +492,69 @@
 
 
         function setupDistortionAndVolume(audioContext, audioElements) {
-            const gainNodes = [];
-            drumVolumeControl = document.getElementById('volume2');
-            volumeControls = [
-                document.getElementById('volume1'),
-                document.getElementById('volume2'),
-                document.getElementById('volume3'),
-                document.getElementById('volume4')
-            ];
+    const gainNodes = [];
+    drumVolumeControl = document.getElementById('volume2');
+    volumeControls = [
+        document.getElementById('volume1'),
+        document.getElementById('volume2'),
+        document.getElementById('volume3'),
+        document.getElementById('volume4')
+    ];
 
-            function createDistortionCurve(amount) {
-                const k = typeof amount === 'number' ? amount : 50;
-                const n_samples = 44100;
-                const curve = new Float32Array(n_samples);
-                const deg = Math.PI / 180;
-                for (let i = 0; i < n_samples; ++i) {
-                    const x = i * 2 / n_samples - 1;
-                    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
-                }
-                return curve;
-            }
+    function createDistortionCurve(amount) {
+        const k = typeof amount === 'number' ? amount : 50;
+        const n_samples = 44100;
+        const curve = new Float32Array(n_samples);
+        const deg = Math.PI / 180;
+        for (let i = 0; i < n_samples; ++i) {
+            const x = i * 2 / n_samples - 1;
+            curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+        }
+        return curve;
+    }
 
-            function setDistortion(audioElement, volumeControl, index) {
-                const source = audioContext.createMediaElementSource(audioElement);
-                const gainNode = audioContext.createGain();
-                const distortion = audioContext.createWaveShaper();
+    function setDistortion(audioElement, volumeControl, index) {
+        const source = audioContext.createMediaElementSource(audioElement);
+        const gainNode = audioContext.createGain();
+        const distortion = audioContext.createWaveShaper();
 
-                distortion.curve = createDistortionCurve(50);
-                distortion.oversample = '2x';
+        distortion.curve = createDistortionCurve(50);
+        distortion.oversample = '2x';
 
-                source.connect(gainNode);
+        source.connect(gainNode);
+        gainNode.connect(distortion);
+        distortion.connect(audioContext.destination);
+
+        // Initialize gain node value to the slider's initial value
+        const initialVolume = volumeControl.value;
+        gainNode.gain.value = initialVolume * 0.5;
+
+        gainNodes[index] = gainNode;
+
+        volumeControl.addEventListener('input', event => {
+            const volume = event.target.value;
+            gainNode.gain.value = volume * 0.5;
+            if (volume > 0.8) {
+                gainNode.disconnect();
                 gainNode.connect(distortion);
-                distortion.connect(audioContext.destination);
-
-                // Initialize gain node value to 50%
-                gainNode.gain.value = 0.5 * 0.5;
-
-                gainNodes[index] = gainNode;
-
-                volumeControl.addEventListener('input', event => {
-                    const volume = event.target.value;
-                    gainNode.gain.value = volume * 0.5;
-                    if (volume > 0.8) {
-                        gainNode.disconnect();
-                        gainNode.connect(distortion);
-                    } else {
-                        gainNode.disconnect();
-                        gainNode.connect(audioContext.destination);
-                    }
-
-                    checkVolumes();
-                    updateVolumeSlider(volumeControl); // Update slider color on input change
-                });
+            } else {
+                gainNode.disconnect();
+                gainNode.connect(audioContext.destination);
             }
-
-            setDistortion(audioElements[0], document.getElementById('volume1'), 0);
-            setDistortion(audioElements[1], document.getElementById('volume2'), 1);
-            setDistortion(audioElements[2], document.getElementById('volume3'), 2);
-            setDistortion(audioElements[3], document.getElementById('volume4'), 3);
 
             checkVolumes();
-        }
+            updateVolumeSlider(volumeControl); // Update slider color on input change
+        });
+    }
+
+    setDistortion(audioElements[0], document.getElementById('volume1'), 0);
+    setDistortion(audioElements[1], document.getElementById('volume2'), 1);
+    setDistortion(audioElements[2], document.getElementById('volume3'), 2);
+    setDistortion(audioElements[3], document.getElementById('volume4'), 3);
+
+    checkVolumes();
+}
+
 
         function checkVolumes() {
             clearTimeout(maxVolumeTimer);
