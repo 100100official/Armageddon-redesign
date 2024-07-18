@@ -291,7 +291,12 @@
                             requestAnimationFrame(moveCamera);
                         } else {
                             this.camera.position.z = targetZ;
-                            window.location.href = 'page3.html'; // 페이지 이동
+                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                window.location.href = 'page4.html';
+                            } else {
+                                window.location.href = 'page3.html';
+                            }
                         }
                     };
 
