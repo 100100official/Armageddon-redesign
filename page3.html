@@ -488,10 +488,6 @@
             function showPage4Content() {
                 console.log("showPage4Content 함수 실행됨"); // 함수 실행 여부 확인
                 const audio = document.getElementById('background-music');
-                audio.play().catch(error => {
-                    console.log('Audio playback failed:', error);
-                });
-                localStorage.setItem('audioPlayed', 'true');
 
                 if (isSafariOrChrome) {
                     const safariVideoContainer = document.getElementById('safari-video-container');
@@ -499,20 +495,20 @@
                     const safariVideo = document.getElementById('safari-video');
                     safariVideo.removeAttribute('controls'); // 컨트롤바 숨기기
 
+                    // 사용자 상호작용 이벤트 내에서 재생
                     safariVideo.play().then(() => {
                         console.log('Video is playing');
-                        // 음원 재생
-                        audio.play().catch(error => {
-                            console.log('Audio playback failed:', error);
-                        });
-
                         // 5초 후에 페이지 전환 이벤트 활성화
                         setTimeout(() => {
                             enablePageTransition();
                         }, 5000);
-
                     }).catch(error => {
                         console.error('Video playback failed:', error);
+                    });
+
+                    // 오디오 재생
+                    audio.play().catch(error => {
+                        console.log('Audio playback failed:', error);
                     });
 
                 } else {
@@ -526,6 +522,11 @@
                     setTimeout(() => {
                         enablePageTransition();
                     }, 2000); // 2초 후 클릭 유도
+
+                    // 오디오 재생
+                    audio.play().catch(error => {
+                        console.log('Audio playback failed:', error);
+                    });
                 }
             }
 
@@ -541,6 +542,7 @@
                 });
             }
         });
+
     </script>
 </body>
 </html>
