@@ -47,41 +47,44 @@
             transform: rotate(180deg); /* Flip the slider */
         /* } */ 
         .volume-controls input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 8px;
-            height: 150px;
-            background: linear-gradient(to bottom, gray 100%, white 0%);
-            border-radius: 5px;
-            outline: none;
-            transition: background 0.2s;
-            transform: rotate(180deg); /* Flip the slider */
-        }
+    -webkit-appearance: none;
+    appearance: none;
+    width: 8px;
+    height: 150px;
+    background: linear-gradient(to bottom, gray 100%, white 0%);
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.2s;
+    transform: rotate(180deg); /* Flip the slider */
+}
 
-        .volume-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: rgb(128, 128, 128);
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .volume-controls input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: gray;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .volume-controls input[type="range"]::-ms-track {
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
-        }
+.volume-controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: rgb(128, 128, 128);
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-controls input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: gray;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-controls input[type="range"]::-ms-track {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
         #toggle-button {
             position: absolute;
             top: 10px;
@@ -699,9 +702,35 @@
             event.stopPropagation(); // 이벤트 전파 중지
             toggleModal.style.display = 'none';
         });
-        document.addEventListener('DOMContentLoaded', (event) => {
-            setupAudio();
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+    setupAudio();
+
+    var volumeControls = document.querySelectorAll(".volume-controls input[type='range']");
+
+    volumeControls.forEach(function(slider) {
+        if (!!navigator.platform.match(/iPhone|iPod|iPad/)) {
+            slider.addEventListener("touchend", function(e) {
+                var val = (e.pageX - slider.getBoundingClientRect().left) /
+                    (slider.getBoundingClientRect().right - slider.getBoundingClientRect().left),
+                    max = slider.getAttribute("max"),
+                    segment = 1 / (max - 1),
+                    segmentArr = [];
+
+                max++;
+
+                for (var i = 0; i < max; i++) {
+                    segmentArr.push(segment * i);
+                }
+
+                var segCopy = segmentArr.slice(),
+                    ind = segmentArr.sort((a, b) => Math.abs(val - a) - Math.abs(val - b))[0];
+
+                slider.value = segCopy.indexOf(ind) + 1;
+            }, { passive: true });
+        }
+    });
+});
+
     </script>
 </body>
 </html>
