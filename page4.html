@@ -535,27 +535,27 @@
         gainNode.gain.value = parseFloat(volumeLevel.textContent) * 0.5;
         gainNodes[index] = gainNode;
 
-        volumeControl.querySelector('.volume-up').addEventListener('click', () => {
-            let volume = parseFloat(volumeLevel.textContent);
-            if (volume < 1) {
-                volume += 0.1;
-                volume = Math.min(volume, 1);
-                volumeLevel.textContent = volume.toFixed(1);
-                gainNode.gain.value = volume * 0.5;
-            }
-            checkVolumes();
-        });
+        let intervalId;
 
-        volumeControl.querySelector('.volume-down').addEventListener('click', () => {
-            let volume = parseFloat(volumeLevel.textContent);
-            if (volume > 0) {
-                volume -= 0.1;
-                volume = Math.max(volume, 0);
-                volumeLevel.textContent = volume.toFixed(1);
+        function startVolumeChange(step) {
+            intervalId = setInterval(() => {
+                let volume = parseFloat(volumeLevel.textContent);
+                volume += step;
+                volume = Math.min(Math.max(volume, 0), 1);
+                volumeLevel.textContent = volume.toFixed(2);
                 gainNode.gain.value = volume * 0.5;
-            }
-            checkVolumes();
-        });
+                checkVolumes();
+            }, 50);
+        }
+
+        function stopVolumeChange() {
+            clearInterval(intervalId);
+        }
+
+        volumeControl.querySelector('.volume-up').addEventListener('mousedown', () => startVolumeChange(0.01));
+        volumeControl.querySelector('.volume-down').addEventListener('mousedown', () => startVolumeChange(-0.01));
+        window.addEventListener('mouseup', stopVolumeChange);
+        window.addEventListener('mouseout', stopVolumeChange);
     }
 
     setDistortion(audioElements[0], 0);
