@@ -549,9 +549,14 @@
                     clearInterval(intervalId);
                 }
     
+                // Add mouse and touch event listeners
                 volumeControl.querySelector('.volume-up').addEventListener('mousedown', () => startVolumeChange(0.01));
                 volumeControl.querySelector('.volume-down').addEventListener('mousedown', () => startVolumeChange(-0.01));
+                volumeControl.querySelector('.volume-up').addEventListener('touchstart', () => startVolumeChange(0.01));
+                volumeControl.querySelector('.volume-down').addEventListener('touchstart', () => startVolumeChange(-0.01));
+    
                 window.addEventListener('mouseup', stopVolumeChange);
+                window.addEventListener('touchend', stopVolumeChange);
                 window.addEventListener('mouseout', stopVolumeChange);
             }
     
@@ -695,6 +700,3 @@
         });
     </script>
     
-    </script>
-</body>
-</html>
