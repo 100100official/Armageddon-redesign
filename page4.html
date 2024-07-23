@@ -46,44 +46,36 @@
             transition: background 0.2s;
             transform: rotate(180deg); /* Flip the slider */
         /* } */ 
-        .volume-controls input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 8px;
-    height: 150px;
-    background: linear-gradient(to bottom, gray 100%, white 0%);
-    border-radius: 5px;
-    outline: none;
-    transition: background 0.2s;
-    transform: rotate(180deg); /* Flip the slider */
+        .volume-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
 }
 
-.volume-controls input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: rgb(128, 128, 128);
-    cursor: pointer;
-    border-radius: 50%;
+.volume-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.volume-controls input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: gray;
+.volume-control button {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 10px;
     cursor: pointer;
-    border-radius: 50%;
+    margin: 5px 0;
 }
 
-.volume-controls input[type="range"]::-ms-track {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
+.volume-level {
+    color: white;
+    margin: 5px 0;
 }
+
 
         #toggle-button {
             position: absolute;
@@ -331,10 +323,26 @@
 </head>
 <body>
     <div class="volume-controls">
-        <input type="range" min="0" max="1" step="0.01" value="0.3" id="volume1" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.7" id="volume2" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.1" id="volume3" style="writing-mode: vertical-lr;">
-        <input type="range" min="0" max="1" step="0.01" value="0.5" id="volume4" style="writing-mode: vertical-lr;">
+        <div class="volume-control" data-index="0">
+            <button class="volume-up">+</button>
+            <span class="volume-level">0.3</span>
+            <button class="volume-down">-</button>
+        </div>
+        <div class="volume-control" data-index="1">
+            <button class="volume-up">+</button>
+            <span class="volume-level">0.7</span>
+            <button class="volume-down">-</button>
+        </div>
+        <div class="volume-control" data-index="2">
+            <button class="volume-up">+</button>
+            <span class="volume-level">0.1</span>
+            <button class="volume-down">-</button>
+        </div>
+        <div class="volume-control" data-index="3">
+            <button class="volume-up">+</button>
+            <span class="volume-level">0.5</span>
+            <button class="volume-down">-</button>
+        </div>
     </div>
     
 
@@ -496,13 +504,7 @@
 
         function setupDistortionAndVolume(audioContext, audioElements) {
     const gainNodes = [];
-    drumVolumeControl = document.getElementById('volume2');
-    volumeControls = [
-        document.getElementById('volume1'),
-        document.getElementById('volume2'),
-        document.getElementById('volume3'),
-        document.getElementById('volume4')
-    ];
+    volumeControls = document.querySelectorAll('.volume-control');
 
     function createDistortionCurve(amount) {
         const k = typeof amount === 'number' ? amount : 50;
@@ -516,7 +518,7 @@
         return curve;
     }
 
-    function setDistortion(audioElement, volumeControl, index) {
+    function setDistortion(audioElement, index) {
         const source = audioContext.createMediaElementSource(audioElement);
         const gainNode = audioContext.createGain();
         const distortion = audioContext.createWaveShaper();
@@ -528,53 +530,56 @@
         gainNode.connect(distortion);
         distortion.connect(audioContext.destination);
 
-        // Initialize gain node value to the slider's initial value
-        const initialVolume = volumeControl.value;
-        gainNode.gain.value = initialVolume * 0.5;
-
+        const volumeControl = volumeControls[index];
+        const volumeLevel = volumeControl.querySelector('.volume-level');
+        gainNode.gain.value = parseFloat(volumeLevel.textContent) * 0.5;
         gainNodes[index] = gainNode;
 
-        volumeControl.addEventListener('input', event => {
-            const volume = event.target.value;
-            gainNode.gain.value = volume * 0.5;
-            if (volume > 0.8) {
-                gainNode.disconnect();
-                gainNode.connect(distortion);
-            } else {
-                gainNode.disconnect();
-                gainNode.connect(audioContext.destination);
+        volumeControl.querySelector('.volume-up').addEventListener('click', () => {
+            let volume = parseFloat(volumeLevel.textContent);
+            if (volume < 1) {
+                volume += 0.1;
+                volume = Math.min(volume, 1);
+                volumeLevel.textContent = volume.toFixed(1);
+                gainNode.gain.value = volume * 0.5;
             }
-
             checkVolumes();
-            updateVolumeSlider(volumeControl); // Update slider color on input change
+        });
+
+        volumeControl.querySelector('.volume-down').addEventListener('click', () => {
+            let volume = parseFloat(volumeLevel.textContent);
+            if (volume > 0) {
+                volume -= 0.1;
+                volume = Math.max(volume, 0);
+                volumeLevel.textContent = volume.toFixed(1);
+                gainNode.gain.value = volume * 0.5;
+            }
+            checkVolumes();
         });
     }
 
-    setDistortion(audioElements[0], document.getElementById('volume1'), 0);
-    setDistortion(audioElements[1], document.getElementById('volume2'), 1);
-    setDistortion(audioElements[2], document.getElementById('volume3'), 2);
-    setDistortion(audioElements[3], document.getElementById('volume4'), 3);
+    setDistortion(audioElements[0], 0);
+    setDistortion(audioElements[1], 1);
+    setDistortion(audioElements[2], 2);
+    setDistortion(audioElements[3], 3);
 
     checkVolumes();
 }
 
-
-        function checkVolumes() {
-            clearTimeout(maxVolumeTimer);
-            if (volumeControls.every(control => control.value == 1)) {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    audioElements.forEach(audio => audio.play());
-                    setupDistortionAndVolume(audioContext, audioElements);
-                }
-                startCountdown();
-            } else {
-                resetCountdown();
-            }
+function checkVolumes() {
+    clearTimeout(maxVolumeTimer);
+    const volumeLevels = document.querySelectorAll('.volume-level');
+    if ([...volumeLevels].every(level => parseFloat(level.textContent) === 1)) {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            audioElements.forEach(audio => audio.play());
+            setupDistortionAndVolume(audioContext, audioElements);
         }
-
-        let countdownValue = 4;
-        let countdownInterval;
+        startCountdown();
+    } else {
+        resetCountdown();
+    }
+}
 
         function startCountdown() {
             resetCountdown(); // Ensure any previous countdown is cleared
@@ -705,29 +710,24 @@
         document.addEventListener('DOMContentLoaded', function() {
     setupAudio();
 
-    var volumeControls = document.querySelectorAll(".volume-controls input[type='range']");
+    const volumeControls = document.querySelectorAll('.volume-control');
 
-    volumeControls.forEach(function(slider) {
-        if (!!navigator.platform.match(/iPhone|iPod|iPad/)) {
-            slider.addEventListener("touchend", function(e) {
-                var val = (e.pageX - slider.getBoundingClientRect().left) /
-                    (slider.getBoundingClientRect().right - slider.getBoundingClientRect().left),
-                    max = slider.getAttribute("max"),
-                    segment = 1 / (max - 1),
-                    segmentArr = [];
+    volumeControls.forEach(function(control, index) {
+        control.querySelector('.volume-up').addEventListener('click', function() {
+            let volume = parseFloat(control.querySelector('.volume-level').textContent);
+            volume = Math.min(volume + 0.1, 1);
+            control.querySelector('.volume-level').textContent = volume.toFixed(1);
+            gainNodes[index].gain.value = volume * 0.5;
+            checkVolumes();
+        });
 
-                max++;
-
-                for (var i = 0; i < max; i++) {
-                    segmentArr.push(segment * i);
-                }
-
-                var segCopy = segmentArr.slice(),
-                    ind = segmentArr.sort((a, b) => Math.abs(val - a) - Math.abs(val - b))[0];
-
-                slider.value = segCopy.indexOf(ind) + 1;
-            }, { passive: true });
-        }
+        control.querySelector('.volume-down').addEventListener('click', function() {
+            let volume = parseFloat(control.querySelector('.volume-level').textContent);
+            volume = Math.max(volume - 0.1, 0);
+            control.querySelector('.volume-level').textContent = volume.toFixed(1);
+            gainNodes[index].gain.value = volume * 0.5;
+            checkVolumes();
+        });
     });
 });
 
