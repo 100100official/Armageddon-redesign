@@ -559,8 +559,8 @@
                 }
     
                 // Add mouse and touch event listeners
-                volumeControl.querySelector('.volume-up').addEventListener('mousedown', () => startVolumeChange(0.01));
-                volumeControl.querySelector('.volume-down').addEventListener('mousedown', () => startVolumeChange(-0.01));
+                volumeControl.querySelector('.volume-up').addEventListener('mousedown', () => startVolumeChange(0.02));
+                volumeControl.querySelector('.volume-down').addEventListener('mousedown', () => startVolumeChange(-0.02));
                 window.addEventListener('mouseup', stopVolumeChange);
                 window.addEventListener('mouseout', stopVolumeChange);
     
