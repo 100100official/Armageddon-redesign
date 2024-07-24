@@ -142,10 +142,13 @@
     <div id="goButton" class="inactive">VERIFY</div>
     <audio id="background-music" src="src/audio/mineinst.mp3" preload="auto"></audio>
     <script type="module">
+        console.log("페이지 로드됨");
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import * as TWEEN from 'three/addons/libs/tween.module.js';
         import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
+
+        console.log("Three.js 모듈 로드됨");
 
         let simplex = new SimplexNoise();
         let collectedLetters = new Array(10).fill(null);
