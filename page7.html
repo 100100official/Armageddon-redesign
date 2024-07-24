@@ -227,180 +227,146 @@
         <div class="scanlines"></div>
         <div class="noise"></div>
         <div class="noise noise-moving"></div>
-
         <div class="play" data-splitting> You already know that </p> we are not just one. </div>
     </div>
 
     <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+            import * as THREE from 'three';
+            import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const pixelDataPath = 'src/pixel_data.json'; // JSON 파일 경로
+            // 씬 생성
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
 
-        function getClosestColor(r, g, b) {
-            const blue = [0, 77, 236];
-            const black = [1, 5, 24];
+            // 카메라 생성
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const initialCameraZ = 5; // 초기 카메라 Z 값 설정
+            camera.position.z = initialCameraZ;
 
-            const distanceToBlue = Math.sqrt((r - blue[0]) ** 2 + (g - blue[1]) ** 2 + (b - blue[2]) ** 2);
-            const distanceToBlack = Math.sqrt((r - black[0]) ** 2 + (g - black[1]) ** 2 + (b - black[2]) ** 2);
+            // 렌더러 생성
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-            return distanceToBlue < distanceToBlack ? 'blue' : 'black';
-        }
+            // 텍스트 텍스처 생성
+            const texSize = 2048;
+            const alphabet = [..."세계의 종말"];
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = texSize;
+            canvas.height = texSize;
+            ctx.clearRect(0, 0, texSize, texSize);
+            const dim = 8;
+            const dimStep = texSize / dim;
+            for (let i = 0; i < alphabet.length; i++) {
+                const tileX = i % 8;
+                const tileY = Math.floor(i / 8);
+                const x = (tileX + 0.5) * dimStep;
+                const y = texSize - (tileY + 0.5) * dimStep;
+                ctx.fillStyle = `rgba(0, 0, 0, 1)`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = `bold ${dimStep * 0.9}px Arial`;
+                ctx.fillText(alphabet[i], x, y);
+            }
+            const textTexture = new THREE.CanvasTexture(canvas);
+            textTexture.colorSpace = "srgb";
 
-        fetch(pixelDataPath)
-            .then(response => response.json())
-            .then(pixelData => {
-                const logoWidth = pixelData.width;
-                const logoHeight = pixelData.height;
-                const data = pixelData.data;
-
-                // 씬 생성
-                const scene = new THREE.Scene();
-                scene.background = new THREE.Color(0xffffff);
-
-                // 카메라 생성
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const initialCameraZ = 5; // 초기 카메라 Z 값 설정
-                camera.position.z = initialCameraZ;
-
-                // 렌더러 생성
-                const renderer = new THREE.WebGLRenderer();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                document.body.appendChild(renderer.domElement);
-
-                // 텍스트 텍스처 생성
-                const texSize = 2048;
-                const alphabet = [..."세계의 종말"];
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = texSize;
-                canvas.height = texSize;
-                ctx.clearRect(0, 0, texSize, texSize);
-                const dim = 8;
-                const dimStep = texSize / dim;
-                for (let i = 0; i < alphabet.length; i++) {
-                    const tileX = i % 8;
-                    const tileY = Math.floor(i / 8);
-                    const x = (tileX + 0.5) * dimStep;
-                    const y = texSize - (tileY + 0.5) * dimStep;
-                    ctx.fillStyle = `rgba(0, 0, 0, 1)`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.font = `bold ${dimStep * 0.9}px Arial`;
-                    ctx.fillText(alphabet[i], x, y);
-                }
-                const textTexture = new THREE.CanvasTexture(canvas);
-                textTexture.colorSpace = "srgb";
-
-                // 텍스트 재질 생성
-                const material = new THREE.MeshBasicMaterial({
-                    map: textTexture,
-                    transparent: true,
-                    alphaTest: 0.01,
-                    side: THREE.DoubleSide
-                });
-
-                // 인스턴스 메시 생성
-                const tileDim = 200;
-                const geometry = new THREE.PlaneGeometry(1, 1);
-                const instancedMesh = new THREE.InstancedMesh(geometry, material, tileDim * tileDim);
-
-                const dummy = new THREE.Object3D();
-                let index = 0;
-
-                const centerTextIndex = Math.floor(tileDim * tileDim / 2) + Math.floor(tileDim / 2);
-
-                for (let z = 0; z < tileDim; z++) {
-                    for (let x = 0; x < tileDim; x++) {
-                        const dx = -(tileDim - 1) * 0.5 + x;
-                        const dz = -(tileDim - 1) * 0.5 + z;
-
-                        const pixelX = Math.floor((dx + tileDim / 2) * (logoWidth / tileDim));
-                        const pixelY = Math.floor((dz + tileDim / 2) * (logoHeight / tileDim));
-                        const [r, g, b] = data[pixelY][pixelX];
-
-                        const color = getClosestColor(r, g, b);
-
-                        dummy.position.set(dx, dz, 0);
-                        dummy.updateMatrix();
-
-                        instancedMesh.setMatrixAt(index, dummy.matrix);
-
-                        const colorVector = color === 'black' ? new THREE.Color(0x000000) : new THREE.Color(0x0000ff);
-                        instancedMesh.setColorAt(index, colorVector);
-
-                        index++;
-                    }
-                }
-
-                // 중앙 텍스트를 보라색으로 설정
-                const purpleColor = new THREE.Color(0x800080);
-                instancedMesh.setColorAt(centerTextIndex, purpleColor);
-                instancedMesh.instanceColor.needsUpdate = true; // 색상 업데이트 필요 플래그 설정
-                console.log(`Center text index set to purple: ${centerTextIndex}`);
-
-                // 클릭 이벤트 처리
-                document.addEventListener('click', (event) => {
-                    const mouse = new THREE.Vector2();
-                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-                    const raycaster = new THREE.Raycaster();
-                    raycaster.setFromCamera(mouse, camera);
-
-                    const intersects = raycaster.intersectObject(instancedMesh);
-
-                    if (intersects.length > 0) {
-                        const instanceId = intersects[0].instanceId;
-                        console.log(`Intersected instance ID: ${instanceId}`);
-                        if (instanceId === centerTextIndex) {
-                            window.location.href = 'https://www.aespa.com';
-                        }
-                    }
-                });
-
-                instancedMesh.instanceMatrix.needsUpdate = true;
-
-                scene.add(instancedMesh);
-
-                // 컨트롤 생성
-                const controls = new OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    controls.update();
-                    renderer.render(scene, camera);
-                }
-
-                animate();
-
-                window.addEventListener('resize', () => {
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                });
-
-                // 5초 후 알림을 띄우고 aespa.com으로 이동
-                setTimeout(() => {
-                    if (confirm('WE ARE COMING')) {
-                        window.location.href = 'https://www.aespa.com';
-                    }
-                }, 5000);
+            // 텍스트 재질 생성
+            const material = new THREE.MeshBasicMaterial({
+                map: textTexture,
+                transparent: true,
+                alphaTest: 0.01,
+                side: THREE.DoubleSide
             });
 
-        const toggleButton = document.getElementById('toggle-button');
-        const toggleModal = document.getElementById('toggle-modal');
+            // 인스턴스 메시 생성
+            const tileDim = 200;
+            const geometry = new THREE.PlaneGeometry(1, 1);
+            const instancedMesh = new THREE.InstancedMesh(geometry, material, tileDim * tileDim);
 
-        toggleButton.style.display = 'block';
+            const dummy = new THREE.Object3D();
+            let index = 0;
 
-        toggleButton.addEventListener('click', () => {
-            if (toggleModal.style.display === 'none') {
-                toggleModal.style.display = 'flex';
-            } else {
-                toggleModal.style.display = 'none';
+            for (let z = 0; z < tileDim; z++) {
+                for (let x = 0; x < tileDim; x++) {
+                    const dx = -(tileDim - 1) * 0.5 + x;
+                    const dz = -(tileDim - 1) * 0.5 + z;
+
+                    dummy.position.set(dx, dz, 0);
+                    dummy.updateMatrix();
+
+                    instancedMesh.setMatrixAt(index, dummy.matrix);
+                    index++;
+                }
             }
-        });
-    </script>
+
+            instancedMesh.instanceMatrix.needsUpdate = true;
+
+            scene.add(instancedMesh);
+
+            // 클릭 이벤트 처리
+            document.addEventListener('click', (event) => {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                const intersects = raycaster.intersectObject(instancedMesh);
+
+                if (intersects.length > 0) {
+                    const instanceId = intersects[0].instanceId;
+                    console.log(`Intersected instance ID: ${instanceId}`);
+                    // 예시 URL로 리디렉션
+                    window.location.href = 'https://www.aespa.com';
+                }
+            });
+
+            // 컨트롤 생성
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // 5초 후 알림을 띄우고 aespa.com으로 이동
+            setTimeout(() => {
+                if (confirm('WE ARE COMING')) {
+                    window.location.href = 'https://www.aespa.com';
+                }
+            }, 5000);
+
+            const toggleButton = document.getElementById('toggle-button');
+            const toggleModal = document.getElementById('toggle-modal');
+
+            toggleButton.style.display = 'block';
+
+            toggleButton.addEventListener('click', () => {
+                if (toggleModal.style.display === 'none') {
+                    toggleModal.style.display = 'flex';
+                } else {
+                    toggleModal.style.display = 'none';
+                }
+            });
+        </script>
+</body>
+</html>
+
+</body>
+</html>
+
 </body>
 </html>

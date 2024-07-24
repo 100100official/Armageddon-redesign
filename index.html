@@ -74,6 +74,35 @@
             font-size: 24px;
             cursor: pointer;
         }
+        #first-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Nico Moji', sans-serif;
+}
+
+#close-first-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
 
         #code-black {
             position: absolute;
@@ -488,6 +517,20 @@
         </div>
     </div>
 
+    <!-- New Text Modal -->
+        <div id="first-modal">
+            <button id="close-first-modal">&times;</button>
+            <div class="modal-content">
+                <p>사운드가 함께 재생됩니다.<br/>주위 환경을 고려하여 기기의 음량을 조절해주세요. <br/> <br/>
+
+                    에스파의 정규 앨범 ‘armageddon’에서 영감을 받아 제작된 인터랙티브 웹 페이지 입니다. <br/>
+                    에스파와 관련된 모든 소스(음원, 원본 사진 등)는 sm entertainment에게 저작권이 있습니다. <br/>
+                    개인 작업물이며 어떠한 상업적 이익도 취하지 않고 있습니다. <br/> <br/>
+                    
+                    비즈니스 문의는 공식 메일로 전달주세요.</p>
+            </div>
+        </div>
+
     <!-- Modal -->
     <div id="modal">
         <button id="close-modal">&times;</button>
@@ -511,103 +554,112 @@
         import * as topojson from 'https://cdn.skypack.dev/topojson@3';
 
         document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('modal');
-            const closeModal = document.getElementById('close-modal');
-            const audio = document.getElementById('background-music');
-            const header = document.getElementById('header');
-            const codeBlack = document.getElementById('code-black');
-            const canvas = document.getElementById('scene');
-            const frame = document.getElementById('frame');
-            const combinedContainer = document.getElementById('combined-container');
-            const observationDetails = document.getElementById('observation-details');
-            const toggleButton = document.getElementById('toggle-button');
-            const toggleModal = document.getElementById('toggle-modal');
-            const hintToggleButton = document.getElementById('hint-toggle-button');
-            const hintText = document.getElementById('hint-text');
-            const closeToggleModal = document.getElementById('close-toggle-modal');
+    const firstModal = document.getElementById('first-modal');
+    const closeFirstModal = document.getElementById('close-first-modal');
+    const modal = document.getElementById('modal');
+    const closeModal = document.getElementById('close-modal');
+    const audio = document.getElementById('background-music');
+    const header = document.getElementById('header');
+    const codeBlack = document.getElementById('code-black');
+    const canvas = document.getElementById('scene');
+    const frame = document.getElementById('frame');
+    const combinedContainer = document.getElementById('combined-container');
+    const observationDetails = document.getElementById('observation-details');
+    const toggleButton = document.getElementById('toggle-button');
+    const toggleModal = document.getElementById('toggle-modal');
+    const hintToggleButton = document.getElementById('hint-toggle-button');
+    const hintText = document.getElementById('hint-text');
+    const closeToggleModal = document.getElementById('close-toggle-modal');
 
-            // Ensure the modal is hidden initially
-            toggleModal.style.display = 'none';
-            canvas.style.display = 'none';
-            frame.style.display = 'none';
-            combinedContainer.style.display = 'none';
+    // Ensure the modals are hidden initially
+    modal.style.display = 'none';
+    toggleModal.style.display = 'none';
+    canvas.style.display = 'none';
+    frame.style.display = 'none';
+    combinedContainer.style.display = 'none';
 
-            closeModal.addEventListener('click', () => {
-                modal.style.display = 'none';
+    closeFirstModal.addEventListener('click', () => {
+        firstModal.style.display = 'none';
+        modal.style.display = 'flex'; // Show the second modal
+    });
 
-                // 배경 음악 재생 시작
-                audio.play().catch(error => {
-                    console.log('Audio playback failed:', error);
-                });
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
 
-                // 배경 음악이 끝나면 다시 재생되도록 설정
-                audio.addEventListener('ended', () => {
-                    audio.currentTime = 0;
-                    audio.play().catch(error => {
-                        console.log('Audio playback failed:', error);
-                    });
-                });
+        // 배경 음악 재생 시작
+        audio.play().catch(error => {
+            console.log('Audio playback failed:', error);
+        });
 
-                // 요소 표시
-                canvas.style.display = 'block';
-                frame.style.display = 'block';
-                combinedContainer.style.display = 'block';
-
-                // CODE BLACK 문구 표시 및 깜박이기
-                codeBlack.style.display = 'block';
-                codeBlack.style.animation = 'blink 1s ease-in-out 3';
-
-                // 애니메이션이 끝난 후 CODE BLACK 문구 숨기기
-                setTimeout(() => {
-                    codeBlack.style.display = 'none';
-                }, 3000);
-
-                // Show the toggle button after the modal is closed
-                toggleButton.style.display = 'block';
-            });
-
-            // 버튼 클릭 이벤트 리스너 설정
-            toggleButton.addEventListener('click', () => {
-                if (toggleModal.style.display === 'none') {
-                    toggleModal.style.display = 'flex';
-                } else {
-                    toggleModal.style.display = 'none';
-                }
-            });
-
-            hintToggleButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // 이벤트 전파 중지
-                if (hintText.style.display === 'none') {
-                    hintText.style.display = 'block';
-                } else {
-                    hintText.style.display = 'none';
-                }
-            });
-
-            toggleModal.addEventListener('click', () => {
-                alert("Interactive message: 'Hello, this is the captain speaking'");
-            });
-
-            closeToggleModal.addEventListener('click', (event) => {
-                event.stopPropagation(); // 이벤트 전파 중지
-                toggleModal.style.display = 'none';
-            });
-
-            const app = new App({ canvas: document.querySelector("#scene") });
-
-            // 클릭 및 터치 이벤트 리스너 추가
-            canvas.addEventListener('click', app.onCanvasClick.bind(app));
-            canvas.addEventListener('touchstart', app.onCanvasClick.bind(app));
-
-            // user-select 방지를 위해 selectstart, touchstart, contextmenu 이벤트 핸들러 추가 (capture 버튼 제외)
-            document.querySelectorAll('.control-button').forEach(button => {
-                if (button.id !== 'capture') {
-                    button.addEventListener('selectstart', event => event.preventDefault());
-                    button.addEventListener('touchstart', event => event.preventDefault());
-                    button.addEventListener('contextmenu', event => event.preventDefault());
-                }
+        // 배경 음악이 끝나면 다시 재생되도록 설정
+        audio.addEventListener('ended', () => {
+            audio.currentTime = 0;
+            audio.play().catch(error => {
+                console.log('Audio playback failed:', error);
             });
         });
+
+        // 요소 표시
+        canvas.style.display = 'block';
+        frame.style.display = 'block';
+        combinedContainer.style.display = 'block';
+
+        // CODE BLACK 문구 표시 및 깜박이기
+        codeBlack.style.display = 'block';
+        codeBlack.style.animation = 'blink 1s ease-in-out 3';
+
+        // 애니메이션이 끝난 후 CODE BLACK 문구 숨기기
+        setTimeout(() => {
+            codeBlack.style.display = 'none';
+        }, 3000);
+
+        // Show the toggle button after the modal is closed
+        toggleButton.style.display = 'block';
+    });
+
+    // 버튼 클릭 이벤트 리스너 설정
+    toggleButton.addEventListener('click', () => {
+        if (toggleModal.style.display === 'none') {
+            toggleModal.style.display = 'flex';
+        } else {
+            toggleModal.style.display = 'none';
+        }
+    });
+
+    hintToggleButton.addEventListener('click', (event) => {
+        event.stopPropagation(); // 이벤트 전파 중지
+        if (hintText.style.display === 'none') {
+            hintText.style.display = 'block';
+        } else {
+            hintText.style.display = 'none';
+        }
+    });
+
+    toggleModal.addEventListener('click', () => {
+        alert("Interactive message: 'Hello, this is the captain speaking'");
+    });
+
+    closeToggleModal.addEventListener('click', (event) => {
+        event.stopPropagation(); // 이벤트 전파 중지
+        toggleModal.style.display = 'none';
+    });
+
+    const app = new App({ canvas: document.querySelector("#scene") });
+
+    // 클릭 및 터치 이벤트 리스너 추가
+    canvas.addEventListener('click', app.onCanvasClick.bind(app));
+    canvas.addEventListener('touchstart', app.onCanvasClick.bind(app));
+
+    // user-select 방지를 위해 selectstart, touchstart, contextmenu 이벤트 핸들러 추가 (capture 버튼 제외)
+    document.querySelectorAll('.control-button').forEach(button => {
+        if (button.id !== 'capture') {
+            button.addEventListener('selectstart', event => event.preventDefault());
+            button.addEventListener('touchstart', event => event.preventDefault());
+            button.addEventListener('contextmenu', event => event.preventDefault());
+        }
+    });
+});
+
 
         class App {
             constructor({ canvas }) {
