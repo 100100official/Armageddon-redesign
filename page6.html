@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 6</title>
+ <title>Page 6</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
 
@@ -11,14 +10,15 @@
         /* CSS code remains unchanged */
     </style>
 </head>
-<body>
+<body>   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <div id="slots"></div>
     <div id="goButton" class="inactive">VERIFY</div>
     <audio id="background-music" src="src/audio/mineinst.mp3" preload="auto"></audio>
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.163.0/build/three.module.js';
-        import { OrbitControls } from 'https://unpkg.com/three@0.163.0/examples/jsm/controls/OrbitControls.js';
-        import * as TWEEN from 'https://unpkg.com/three@0.163.0/examples/jsm/libs/tween.module.min.js';
+        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        import * as TWEEN from './src/tween.umd.js';
         import { SimplexNoise } from 'https://unpkg.com/three@0.163.0/examples/jsm/math/SimplexNoise.js';
 
         let simplex = new SimplexNoise();
