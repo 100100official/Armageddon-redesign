@@ -74,7 +74,9 @@
             font-size: 24px;
             cursor: pointer;
         }
-        #first-modal {
+
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard&display=swap');
+#first-modal {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -88,8 +90,9 @@
     color: white;
     padding: 20px;
     border-radius: 10px;
-    text-align: center;
-    font-family: 'Nico Moji', sans-serif;
+    text-align: left; /* 텍스트 왼쪽 정렬 */
+    font-family: 'Pretendard', sans-serif; /* 폰트 Pretendard로 변경 */
+    border: 2px solid white; /* 흰색 테두리 추가 */
 }
 
 #close-first-modal {
@@ -102,7 +105,6 @@
     font-size: 24px;
     cursor: pointer;
 }
-
 
         #code-black {
             position: absolute;
