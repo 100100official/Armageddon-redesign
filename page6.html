@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page 6</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Google Fonts 링크 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap">
 
     <style>
@@ -128,27 +128,16 @@
         }
 
     </style>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
-            }
-        }
-    </script>
 </head>
 <body>
     <div id="slots"></div>
     <div id="goButton" class="inactive">VERIFY</div>
     <audio id="background-music" src="src/audio/mineinst.mp3" preload="auto"></audio>
     <script type="module">
-        console.log("페이지 로드됨");
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import * as TWEEN from 'three/addons/libs/tween.module.js';
-        import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
-
-        console.log("Three.js 모듈 로드됨");
+        import * as THREE from 'https://unpkg.com/three@0.163.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.163.0/examples/jsm/controls/OrbitControls.js';
+        import * as TWEEN from 'https://unpkg.com/three@0.163.0/examples/jsm/libs/tween.module.min.js';
+        import { SimplexNoise } from 'https://unpkg.com/three@0.163.0/examples/jsm/math/SimplexNoise.js';
 
         let simplex = new SimplexNoise();
         let collectedLetters = new Array(10).fill(null);
