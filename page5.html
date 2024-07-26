@@ -149,7 +149,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/EffectComposer.js"></script>
@@ -158,38 +157,37 @@
     <script src="https://cdn.jsdelivr.net/npm/three/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three/examples/js/postprocessing/UnrealBloomPass.js"></script>
-
-
+    
     <script>
         let scene, camera, renderer, controls, composer, particles;
-
+    
         const imagePath = 'src/aespa_glow.jpg'; // 첫 번째 이미지 경로를 여기에 입력하세요
-
+    
         init();
         animate();
-
+    
         function init() {
             // Scene setup
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-
+    
             // Set initial camera position
             setCameraPosition();
-
+    
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.domElement.style.width = '100%';
             renderer.domElement.style.height = '100%';
             document.getElementById('particle-container').appendChild(renderer.domElement);
-
+    
             controls = new THREE.OrbitControls(camera, renderer.domElement);
-
+    
             // Load image and create particles
             loadParticleImage(imagePath, 'particle-container');
-
+    
             window.addEventListener('resize', onWindowResize, false);
         }
-
+    
         function setCameraPosition() {
             if (window.innerWidth <= 768) {
                 // Mobile view
@@ -202,7 +200,7 @@
             }
             camera.updateProjectionMatrix();
         }
-
+    
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             setCameraPosition();
@@ -211,27 +209,27 @@
                 composer.setSize(window.innerWidth, window.innerHeight);
             }
         }
-
+    
         function loadParticleImage(path, containerId) {
             const loader = new THREE.TextureLoader();
             loader.load(path, function(texture) {
                 const imgWidth = texture.image.width;
                 const imgHeight = texture.image.height;
                 const imgData = getImageData(texture.image);
-
+    
                 const aspectRatio = imgWidth / imgHeight;
                 const container = document.getElementById(containerId);
                 container.style.aspectRatio = `${imgWidth} / ${imgHeight}`;
-
+    
                 const geometry = new THREE.BufferGeometry();
                 const vertices = [];
                 const colors = [];
                 const color = new THREE.Color();
-
+    
                 const isMobile = window.innerWidth <= 768;
                 const pixelSize = isMobile ? 1.0 : 0.5; // 모바일 뷰에서는 더 큰 pixelSize 사용
                 const pointSize = isMobile ? 1.0 : 0.5; // 모바일 뷰에서는 더 큰 pointSize 사용
-
+    
                 for (let y = 0; y < imgHeight; y += pixelSize) {
                     for (let x = 0; x < imgWidth; x += pixelSize) {
                         const index = (y * imgWidth + x) * 4;
@@ -239,30 +237,30 @@
                         const g = imgData.data[index + 1];
                         const b = imgData.data[index + 2];
                         const a = imgData.data[index + 3];
-
+    
                         if (a > 128) { // Transparency threshold
                             const vx = (x - imgWidth / 2) * pixelSize;
                             const vy = -(y - imgHeight / 2) * pixelSize;
                             const vz = 0;
                             vertices.push(vx, vy, vz);
-
+    
                             color.setRGB(r / 255, g / 255, b / 255);
                             colors.push(color.r, color.g, color.b);
                         }
                     }
                 }
-
+    
                 geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
                 geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
+    
                 const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true });
                 particles = new THREE.Points(geometry, material);
-
+    
                 // Y축 위치 조정
                 particles.position.y += -80; // 원하는 Y축 위치로 조정
-
+    
                 scene.add(particles);
-
+    
                 // Add bloom effect
                 const renderScene = new THREE.RenderPass(scene, camera);
                 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.6, 0.1);
@@ -275,16 +273,16 @@
                     bloomPass.strength = 2.5;
                     bloomPass.radius = 1.0;
                 }
-
+    
                 composer = new THREE.EffectComposer(renderer);
                 composer.addPass(renderScene);
                 composer.addPass(bloomPass);
             });
-
+    
             const container = document.getElementById(containerId);
             container.appendChild(renderer.domElement);
         }
-
+    
         function getImageData(image) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -293,7 +291,7 @@
             context.drawImage(image, 0, 0);
             return context.getImageData(0, 0, image.width, image.height);
         }
-
+    
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
@@ -303,17 +301,21 @@
                 renderer.render(scene, camera);
             }
         }
-
+    
         function nextPage() {
-            window.location.href = 'page6.html'; // 이동할 페이지 경로를 여기에 입력하세요
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            if (window.innerWidth > 768 && isSafari) {
+                window.location.href = 'page7.html'; // 사파리 브라우저에서 page7로 이동
+            } else {
+                window.location.href = 'page6.html'; // 그 외 경우 page6로 이동
+            }
         }
-
+    
         function logCameraCoordinates() {
             const { x, y, z } = camera.position;
             console.log(`Current camera coordinates - x: ${x}, y: ${y}, z: ${z}`);
         }
-
-
     </script>
+
 </body>
 </html>
